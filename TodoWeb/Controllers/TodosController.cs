@@ -166,18 +166,22 @@ namespace TodoWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TestMethod ([FromForm] int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus (List<int> IdList)
         {
-            int status;
-            Todo todo = await _context.Todos.FindAsync(id);
-            if (todo == null)
+            if (IdList.Count() != 0)
             {
-                status = StatusCodes.Status404NotFound;
-            } else
-            {
-                status = StatusCodes.Status200OK;
+                try
+                {
+                    await _context.Todos.Where(todo => IdList.Contains(todo.Id)).ForEachAsync(todo => todo.Done = !todo.Done);
+                    await _context.SaveChangesAsync();
+                }
+                catch
+                {
+                    return new JsonResult(null) { StatusCode = StatusCodes.Status500InternalServerError };
+                }
             }
-            return new JsonResult(todo) { StatusCode = status };
+            return new JsonResult(null){ StatusCode = StatusCodes.Status200OK };
         }
     }
 }

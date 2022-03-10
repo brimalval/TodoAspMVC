@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 class="text-red-700">Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,16 +13,13 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Done)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Done)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDateTime)
             </th>
             <th></th>
         </tr>
@@ -31,16 +28,15 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Title)
+                <input type="checkbox" class="todo-checker" data-id="@item.Id" checked="@item.Done" />
+            </td>
+            <td>
+                <span id="title-@item.Id" class="@(item.Done ? "line-through" : "")">
+                    @Html.DisplayFor(modelItem => item.Title)
+                </span>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Done)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDateTime)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -52,27 +48,41 @@
     </tbody>
 </table>
 
-<input type="number" id="todo-id" min="0" />
-<button id="click-me">Find a todo</button>
-
 @section Scripts 
 {
     <script>
-        $('#click-me').on('click', function(e) {
-            e.preventDefault();
-            const id = $('#todo-id').val();
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("TestMethod")",
-                dataType: "json",
-                data: { Id: id },
-                success: function (data) {
-                    console.log(data);
-                },
-                error: function (data) {
-                    console.log("ERror", data);
-                }
-            });
+        var updated = new Set();
+        $('.todo-checker').change(function() {
+            var id = $(this).data("id");
+            if (this.checked) {
+                $('#title-' + id).addClass('line-through');
+            } else {
+                $('#title-' + id).removeClass('line-through');
+            }
+
+            if (updated.has(id)) {
+                updated.delete(id);
+            } else {
+                updated.add(id);
+            }
+        });
+
+        var debounce = null;
+        $('.todo-checker').change(function () {
+            clearTimeout(debounce);
+            debounce = setTimeout(function() {
+                var token = $('@Html.AntiForgeryToken()').val();
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ToggleStatus")",
+                    dataType: "json",
+                    data: { 
+                        idList: Array.from(updated),
+                        __RequestVerificationToken: token
+                    }
+                });
+                updated.clear();
+            }, @Config.DebounceTime);
         });
     </script>
 }
