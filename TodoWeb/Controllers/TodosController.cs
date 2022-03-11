@@ -178,10 +178,10 @@ namespace TodoWeb.Controllers
                 }
                 catch
                 {
-                    return new JsonResult(null) { StatusCode = StatusCodes.Status500InternalServerError };
+                    return StatusCode(StatusCodes.Status500InternalServerError);
                 }
             }
-            return new JsonResult(null){ StatusCode = StatusCodes.Status200OK };
+            return Ok();
         }
     }
 }
