@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<section>
+<section aria-label="View task details section">
     <h1 class="title-header">Task Details</h1>
     <partial name="_IndexNav" />
     <dl>
@@ -33,7 +33,9 @@
         <dd id="date-created-display">@Html.DisplayFor(model => model.CreatedDateTime)</dd>
 
         <div class="form-group col-container">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary block">Edit</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary block" aria-label="Save edits button">
+                Edit
+            </a>
         </div>
     </dl>
 </section>

@@ -4,16 +4,17 @@
     ViewData["Title"] = "Edit";
 }
 
-<section>
+<section aria-label="Edit task section">
     <h1 class="title-header">Edit Task</h1>
     <partial name="_IndexNav" />
-    <form asp-action="Edit">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <form asp-action="Edit" aria-label="Edit task form">
+        <div asp-validation-summary="ModelOnly" class="text-danger" aria-label="Error summary"></div>
         <input type="hidden" asp-for="Id" />
         <div class="form-group">
             <label asp-for="Done" class="control-label">Mark as Done</label>
             <input asp-for="Done" type="checkbox" class="hidden todo-checker"
-            data-id="@Model.Id" id="checkbox-@Model.Id" checked="@Model.Done" />
+            data-id="@Model.Id" id="checkbox-@Model.Id" checked="@Model.Done" 
+            aria-label="Task completion status checkbox" />
             <label class="checkbox-label icon-container" for="checkbox-@Model.Id"></label>
         </div>
         <div class="form-group">

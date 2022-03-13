@@ -4,10 +4,10 @@
     ViewData["Title"] = "Create";
 }
 
-<section>
+<section aria-label="Task creation section">
     <h1 class="title-header">Add a Task</h1>
     <partial name="_IndexNav" />
-    <form asp-action="Create" class="m-4">
+    <form asp-action="Create" class="m-4" aria-label="Task creation form">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
             <label asp-for="Title" class="control-label"></label>
@@ -30,5 +30,5 @@
 </section>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.RenderPartialAsync("_ValidationScriptsPartial");
 }

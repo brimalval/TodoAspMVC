@@ -104,7 +104,3 @@ input[type="checkbox"].loading + .checkbox-label {
 .input-validation-error {
   @apply border-2 border-red-500;
 }
-
-.text-danger {
-  @apply text-red-500;
-}
