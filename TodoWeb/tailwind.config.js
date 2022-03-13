@@ -1,9 +1,14 @@
 module.exports = {
   content: [
-      "./Views/**/*.cshtml"
+      "./Views/**/*.cshtml",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#AB47BC',
+        secondary: '#D500F9'
+      }
+    },
   },
   plugins: [],
 }

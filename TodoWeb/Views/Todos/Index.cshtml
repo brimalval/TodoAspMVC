@@ -1,77 +1,86 @@
 ﻿@model IEnumerable<TodoWeb.Models.Todo>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Home";
 }
 
-<h1 class="text-red-700">Index</h1>
+<h1 class="title-header">Todos</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Done)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <input type="checkbox" class="todo-checker" data-id="@item.Id" checked="@item.Done" />
-            </td>
-            <td>
-                <span id="title-@item.Id" class="@(item.Done ? "line-through" : "")">
+<div class="m-4 flex justify-center">
+    <a class="btn-primary" asp-action="Create" asp-controller="Todos">
+        @* Plus icon svg *@
+        <div class="icon-container mr-3">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+        </div>
+        Add a Task
+    </a>
+</div>
+
+<div class="flex flex-col space-y-4">
+    @foreach (var item in Model) {
+    <div class="todo-container">
+
+        <input type="checkbox" class="hidden todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" />
+        <label class="checkbox-label icon-container" for="checkbox-@item.Id"></label>
+
+        <div class="flex-grow flex flex-col overflow-auto">
+            <summary id="title-@item.Id" class='@(item.Done ? "line-through" : "") font-semibold'>
+                <a asp-action="Details" asp-controller="Todos" asp-route-id="@item.Id">
                     @Html.DisplayFor(modelItem => item.Title)
-                </span>
-            </td>
-            <td>
+                </a>
+            </summary>
+            <details class="text-slate-500 truncate cursor-pointer">
                 @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            </details>
+        </div>
+
+        <a class="edit-todo-btn" asp-action="Edit" asp-route-id="@item.Id" aria-label="Edit todo button">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+            </div>
+        </a>
+
+        <a class="delete-todo-btn" asp-action="Delete" asp-route-id="@item.Id" aria-label="Delete todo button">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </a>
+    </div>
+    }
+</div>
 
 @section Scripts 
 {
     <script>
+        // Keeps track of all the todo items that have changed.
         var updated = new Set();
+        // Variable where the delayed Ajax request is stored.
+        var debounce = null;
         $('.todo-checker').change(function() {
             var id = $(this).data("id");
-            if (this.checked) {
-                $('#title-' + id).addClass('line-through');
-            } else {
-                $('#title-' + id).removeClass('line-through');
-            }
-
+            var checker = this;
             if (updated.has(id)) {
+                $(checker).removeClass("loading");
                 updated.delete(id);
             } else {
+                $(checker).addClass("loading");
                 updated.add(id);
             }
-        });
 
-        var debounce = null;
-        $('.todo-checker').change(function () {
+            // Resets the debounce timer.
             clearTimeout(debounce);
+            // Starts a timer before sending an Ajax request.
             debounce = setTimeout(function() {
                 var token = $('@Html.AntiForgeryToken()').val();
+                if (updated.size == 0) {
+                    return;
+                }
                 $.ajax({
                     type: "POST",
                     url: "@Url.Action("ToggleStatus")",
@@ -79,6 +88,18 @@
                     data: { 
                         idList: Array.from(updated),
                         __RequestVerificationToken: token
+                    },
+                    complete: function() {
+                        $('input.loading').each(function(idx, c) {
+                            console.log(idx, c);
+                            $(c).removeClass("loading");
+                            var cId = $(c).data("id");
+                            if (c.checked) {
+                                $('#title-' + cId).addClass('line-through');
+                            } else {
+                                $('#title-' + cId).removeClass('line-through');
+                            }
+                        });
                     }
                 });
                 updated.clear();

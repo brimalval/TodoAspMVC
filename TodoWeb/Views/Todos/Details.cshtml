@@ -4,39 +4,48 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Todo</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
+<section>
+    <h1 class="title-header">Task Details</h1>
+    <partial name="_IndexNav" />
+    <dl>
+        <dt>
+            <label asp-for="Done" class="control-label">Done</label>
+        </dt>
+        <dd>
+            <input type="checkbox" class="hidden todo-checker" disabled readonly data-id="@Model.Id" id="checkbox-@Model.Id" checked="@Model.Done" />
+            <label class="checkbox-label icon-container" for="checkbox-@Model.Id"></label>
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Title)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
+        <dd>
+            <summary class="form-control">@Html.DisplayFor(model => model.Title)</sum>
         </dd>
-        <dt class = "col-sm-2">
+        <dt>
             @Html.DisplayNameFor(model => model.Description)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
+        <dd>
+            <textarea class="form-control" readonly disabled rows="3">@Html.DisplayFor(model => model.Description)</textarea>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Done)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Done)
-        </dd>
-        <dt class = "col-sm-2">
+        <dt>
             @Html.DisplayNameFor(model => model.CreatedDateTime)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDateTime)
-        </dd>
+        <dd id="date-created-display">@Html.DisplayFor(model => model.CreatedDateTime)</dd>
+
+        <div class="form-group col-container">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary block">Edit</a>
+        </div>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const utcDate = new Date($('#date-created-display').text());
+            const offsetInMinutes = utcDate.getTimezoneOffset();
+            const offsetInMilliseconds = offsetInMinutes * 60 * 1000;
+            const localDate = new Date(utcDate - offsetInMilliseconds);
+            $('#date-created-display').text(localDate.toLocaleString());
+        });
+    </script>
+}
