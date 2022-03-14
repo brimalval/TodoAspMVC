@@ -21,7 +21,7 @@
 <div class="flex flex-col space-y-4">
     @if (Model.Count() != 0) {
         @foreach (var item in Model) {
-        <div class="todo-container">
+        <article class="todo-container">
 
             <input type="checkbox" class="hidden todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" aria-label="Task completion status checkbox"/>
             <label class="checkbox-label icon-container" for="checkbox-@item.Id"></label>
@@ -52,7 +52,7 @@
                     </svg>
                 </div>
             </a>
-        </div>
+        </article>
         }
     } else {
         <div class="todo-container flex justify-center">

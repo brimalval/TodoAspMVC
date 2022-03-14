@@ -19,10 +19,7 @@
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
-        @{
-            string format = "yyyy-MM-ddTHH:mm";
-        }
-        <input asp-for="CreatedDateTime" type="hidden" class="form-control" value="@DateTime.UtcNow.ToString(@format)" />
+        <input asp-for="CreatedDateTime" type="hidden" class="form-control" value="@DateTime.UtcNow.ToString(@Config.DateInputFormat)" />
         <div class="form-group col-container">
             <input type="submit" value="Create" class="btn-primary block" />
         </div>
@@ -30,5 +27,5 @@
 </section>
 
 @section Scripts {
-    @await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
