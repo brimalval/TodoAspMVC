@@ -1,0 +1,11 @@
+.todo-item-btn {
+  @apply rounded-sm transition hover:text-white duration-300 p-1 m-3;
+}
+
+.delete-todo-btn {
+  @apply hover:bg-red-500 todo-item-btn;
+}
+
+.edit-todo-btn {
+  @apply  hover:bg-orange-500 todo-item-btn;
+}

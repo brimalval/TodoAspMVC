@@ -4,9 +4,9 @@
     ViewData["Title"] = "Home";
 }
 
-<h1 class="title-header">Todos</h1>
+<h1>Todos</h1>
 
-<div class="m-4 flex justify-center">
+<section class="m-4 flex justify-center" aria-label="Add task button section">
     <a class="btn-primary" asp-action="Create" asp-controller="Todos">
         @* Plus icon svg *@
         <div class="icon-container mr-3">
@@ -16,15 +16,15 @@
         </div>
         Add a Task
     </a>
-</div>
+</section>
 
-<div class="flex flex-col space-y-4">
+<section class="flex flex-col space-y-4" aria-label="Todo/task list">
     @if (Model.Count() != 0) {
         @foreach (var item in Model) {
         <article class="todo-container">
 
-            <input type="checkbox" class="hidden todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" aria-label="Task completion status checkbox"/>
-            <label class="checkbox-label icon-container" for="checkbox-@item.Id"></label>
+            <input type="checkbox" class="todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" aria-label="Task completion status checkbox"/>
+            <label class="checkbox-display icon-container" for="checkbox-@item.Id"></label>
 
             <div class="flex-grow flex flex-col overflow-auto">
                 <summary id="title-@item.Id" class='@(item.Done ? "line-through" : "") font-semibold'>
@@ -32,7 +32,7 @@
                         @Html.DisplayFor(modelItem => item.Title)
                     </a>
                 </summary>
-                <details class="text-slate-500 truncate cursor-pointer">
+                <details class="cursor-pointer">
                     @Html.DisplayFor(modelItem => item.Description)
                 </details>
             </div>
@@ -59,7 +59,7 @@
             <p class="text-lg font-semibold">No tasks added yet</p>
         </div>
     }
-</div>
+</secti>
 
 @section Scripts 
 {

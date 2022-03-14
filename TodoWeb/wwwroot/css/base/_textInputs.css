@@ -1,0 +1,11 @@
+input[type="text"], textarea, .form-control {
+  @apply w-full px-4 py-2 rounded-md text-lg bg-slate-200 transition duration-300 shadow-inner;
+}
+
+input[type="text"]:focus-visible, textarea:focus-visible {
+  @apply outline-primary;
+}
+
+.input-validation-error {
+  @apply border-2 border-red-500;
+}

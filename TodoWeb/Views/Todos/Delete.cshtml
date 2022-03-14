@@ -5,7 +5,7 @@
 }
 
 <section aria-label="Task deletion section">
-    <h1 class="title-header">Delete Task</h1>
+    <h1>Delete Task</h1>
     <partial name="_IndexNav" />
     <h3 class="text-lg mb-6">Are you sure you want to delete this task?</h3>
     <dl>
@@ -13,10 +13,10 @@
             <label asp-for="Done" class="control-label">Done</label>
         </dt>
         <dd>
-            <input type="checkbox" class="hidden todo-checker" disabled 
+            <input type="checkbox" class="todo-checker" disabled 
             readonly data-id="@Model.Id" id="checkbox-@Model.Id" checked="@Model.Done"
             aria-label="Task completion status checkbox" />
-            <label class="checkbox-label icon-container" for="checkbox-@Model.Id" ></label>
+            <label class="checkbox-display icon-container" for="checkbox-@Model.Id" ></label>
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Title)

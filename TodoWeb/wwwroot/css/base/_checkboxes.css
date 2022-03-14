@@ -1,0 +1,20 @@
+.checkbox-display {
+  @apply border-2 border-gray-500 rounded-sm transition duration-300 m-4 cursor-pointer max-w-[1.25rem];
+}
+
+input[type="checkbox"] {
+  @apply hidden;
+}
+
+input[type="checkbox"] + .checkbox-display {
+  @apply bg-cover;
+}
+
+input[type="checkbox"]:checked + .checkbox-display {
+  @apply bg-primary hover:bg-secondary;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+}
+
+input[type="checkbox"].loading + .checkbox-display {
+  background-image: url('../assets/spinner.gif');
+}

@@ -1,0 +1,15 @@
+h1 {
+  @apply text-5xl font-extrabold font-sans text-center mb-7;
+}
+
+.control-label, dt {
+  @apply font-bold mb-2 block text-xl;
+}
+
+details, summary {
+  @apply truncate;
+}
+
+details {
+  @apply text-slate-500;
+}

@@ -1,0 +1,23 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+summary::marker {
+  content: "";
+}
+
+main {
+  @apply px-6 py-6 md:w-3/4 xs:w-full bg-white rounded-xl;
+}
+
