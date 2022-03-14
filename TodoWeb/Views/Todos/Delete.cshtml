@@ -45,13 +45,10 @@
 </section>
 
 @section Scripts {
+    <script src="~/js/app/adjustDateDisplay.js"></script>
     <script>
         $(document).ready(function () {
-            const utcDate = new Date($('#date-created-display').text());
-            const offsetInMinutes = utcDate.getTimezoneOffset();
-            const offsetInMilliseconds = offsetInMinutes * 60 * 1000;
-            const localDate = new Date(utcDate - offsetInMilliseconds);
-            $('#date-created-display').text(localDate.toLocaleString());
+            adjustDateDisplay("#date-created-display");
         });
     </script>
 }

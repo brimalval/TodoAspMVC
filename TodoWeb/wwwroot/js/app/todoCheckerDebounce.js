@@ -1,4 +1,5 @@
-﻿(function (window) {
+﻿// Prevent frequent AJAX calls from repetitive clicks on checkboxes
+(function (window) {
 
     var debounceOptions;
     function todoCheckerDebounce(options) {
@@ -35,7 +36,6 @@
                     },
                     complete: function() {
                         $('input.loading').each(function(idx, c) {
-                            console.log(idx, c);
                             $(c).removeClass("loading");
                             var cId = $(c).data("id");
                             if (c.checked) {
@@ -50,7 +50,7 @@
             }, debounceOptions.debounceTime);
         });
         // Prevent access to the function after the first call.
-        window.todoCheckerDebounce = null;
+        delete window.todoCheckerDebounce;
     }
 
     window.todoCheckerDebounce = todoCheckerDebounce;
