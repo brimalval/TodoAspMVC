@@ -1,4 +1,4 @@
-﻿@model TodoWeb.Models.Todo
+﻿@model TodoWeb.Dtos.TodoViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -27,7 +27,6 @@
             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
-        <input asp-for="CreatedDateTime" type="hidden" class="form-control" value="@Model.CreatedDateTime.ToString(@Config.DateInputFormat)" />
         <div class="form-group col-container">
             <input type="submit" value="Save" class="btn-primary block" />
         </div>

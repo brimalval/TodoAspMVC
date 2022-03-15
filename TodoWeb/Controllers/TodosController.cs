@@ -3,27 +3,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TodoWeb.Data;
+using TodoWeb.Data.Repositories;
+using TodoWeb.Data.Services;
+using TodoWeb.Dtos;
 using TodoWeb.Models;
 
 namespace TodoWeb.Controllers
 {
     public class TodosController : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public TodosController(ApplicationDbContext context)
+        private readonly ITodoService _todoService;
+        private readonly IMapper _mapper;
+        public TodosController(ITodoService todoService, IMapper mapper)
         {
-            _context = context;
+            _todoService = todoService;
+            _mapper = mapper;
         }
 
         // GET: Todos
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Todos.ToListAsync());
+            // return View(await _context.Todos.ToListAsync());
+            return View(await _todoService.GetAllAsync());
         }
 
         // GET: Todos/Details/5
@@ -34,14 +40,13 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todo = await _context.Todos
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (todo == null)
+            TodoViewModel todoViewModel = await _todoService.GetByIdAsync(id ?? -1);
+            if (todoViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(todo);
+            return View(todoViewModel);
         }
 
         // GET: Todos/Create
@@ -55,19 +60,17 @@ namespace TodoWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,Done,CreatedDateTime")] Todo todo)
+        public async Task<IActionResult> Create(CreateTodoArgs todo)
         {
-            Todo duplicate = await _context.Todos.FirstOrDefaultAsync(m => m.Title.Trim() == todo.Title.Trim());
-            if (duplicate != null)
+            var commandResult = await _todoService.CreateAsync(todo);
+            if (commandResult.IsValid)
             {
-                ModelState.AddModelError("Title", "A todo item with that title already exists!");
-            }
-            if (ModelState.IsValid)
-            {
-                todo.Title = todo.Title.Trim();
-                _context.Add(todo);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }
+            var errors = commandResult.Errors;
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(error.Key, error.Value);
             }
             return View(todo);
         }
@@ -80,7 +83,7 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todo = await _context.Todos.FindAsync(id);
+            var todo = await _todoService.GetByIdAsync(id ?? -1);
             if (todo == null)
             {
                 return NotFound();
@@ -93,42 +96,25 @@ namespace TodoWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Done,CreatedDateTime")] Todo todo)
+        public async Task<IActionResult> Edit(int id, UpdateTodoArgs args)
         {
-            if (id != todo.Id)
-            {
-                return NotFound();
-            }
-
-            Todo duplicate = await _context.Todos.FirstOrDefaultAsync(m => m.Title.Trim() == todo.Title.Trim() && m.Id != todo.Id);
-            if (duplicate != null)
-            {
-                var states = ModelState;
-                ModelState.AddModelError("Title", "A todo item with that title already exists!");
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                args.Title = args.Title.Trim();
+                args.Description = args.Description.Trim();
+                var commandResult = await _todoService.UpdateAsync(id, args);
+                if (commandResult.IsValid)
                 {
-                    todo.Title = todo.Title.Trim();
-                    _context.Update(todo);
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+
+                var errors = commandResult.Errors;
+                foreach (var error in errors)
                 {
-                    if (!TodoExists(todo.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError(error.Key, error.Value);
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(todo);
+            return View(_mapper.Map<TodoViewModel>(args));
         }
 
         // GET: Todos/Delete/5
@@ -139,8 +125,7 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todo = await _context.Todos
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var todo = await _todoService.GetByIdAsync(id ?? -1);
             if (todo == null)
             {
                 return NotFound();
@@ -154,34 +139,20 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var todo = await _context.Todos.FindAsync(id);
-            _context.Todos.Remove(todo);
-            await _context.SaveChangesAsync();
+            await _todoService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool TodoExists(int id)
-        {
-            return _context.Todos.Any(e => e.Id == id);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus (List<int> IdList)
         {
-            if (IdList.Count() != 0)
+            var commandResult = await _todoService.ToggleStatus(IdList);
+            if (commandResult.IsValid)
             {
-                try
-                {
-                    await _context.Todos.Where(todo => IdList.Contains(todo.Id)).ForEachAsync(todo => todo.Done = !todo.Done);
-                    await _context.SaveChangesAsync();
-                }
-                catch
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
+                return Ok();
             }
-            return Ok();
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }
