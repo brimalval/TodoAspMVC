@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace TodoWeb.Controllers
     public class TodosController : Controller
     {
         private readonly ITodoService _todoService;
+        // Don't use automapper
         private readonly IMapper _mapper;
         public TodosController(ITodoService todoService, IMapper mapper)
         {
@@ -98,23 +100,29 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateTodoArgs args)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) 
             {
-                args.Title = args.Title.Trim();
-                args.Description = args.Description.Trim();
-                var commandResult = await _todoService.UpdateAsync(id, args);
-                if (commandResult.IsValid)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-
-                var errors = commandResult.Errors;
-                foreach (var error in errors)
-                {
-                    ModelState.AddModelError(error.Key, error.Value);
-                }
+                return View(_mapper.Map<TodoViewModel>(args));
             }
-            return View(_mapper.Map<TodoViewModel>(args));
+
+            var commandResult = await _todoService.UpdateAsync(id, args);
+
+            return commandResult.IsValid ?
+                RedirectToAction(nameof(Index)) : 
+                ShowErrors(
+                    commandResult,
+                    _mapper.Map<TodoViewModel>(args)
+                );
+        }
+
+        private IActionResult ShowErrors(CommandResult commandResult, object model)
+        {
+            foreach (var error in commandResult.Errors)
+            {
+                ModelState.AddModelError(error.Key, error.Value);
+            }
+
+            return View("Edit", model);
         }
 
         // GET: Todos/Delete/5

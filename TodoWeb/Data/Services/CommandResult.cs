@@ -1,9 +1,9 @@
 ﻿namespace TodoWeb.Data.Services
 {
-    public class ModelStateCommandResult : ICommandResult
+    public class CommandResult
     {
         private readonly Dictionary<string, string> _errors;
-        public ModelStateCommandResult()
+        public CommandResult()
         {
             _errors = new();
         }

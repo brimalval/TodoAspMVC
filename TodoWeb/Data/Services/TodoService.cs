@@ -8,22 +8,26 @@ namespace TodoWeb.Data.Services
 {
     public class TodoService : ITodoService
     {
-        private readonly ICommandResult _commandResult;
+        private readonly CommandResult _commandResult;
         private readonly IMapper _mapper;
         private readonly ITodoRepository _todoRepository;
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
-        public TodoService (ITodoRepository todoRepository, ICommandResult commandResult, IMapper mapper)
+        public TodoService (ITodoRepository todoRepository, IMapper mapper)
         {
-            _commandResult = commandResult;
+            _commandResult = new CommandResult();
             _mapper = mapper;
             _todoRepository = todoRepository;
         }
-        public async Task<ICommandResult> CreateAsync(CreateTodoArgs args)
+        public async Task<CommandResult> CreateAsync(CreateTodoArgs args)
         {
             try
             {
-                if (await ValidateTodo(args))
+                args.Title = args.Title.Trim();
+                if (args.Description != null) {
+                    args.Description = args.Description.Trim();
+                }
+                if (ValidateTodo(args))
                 {
                     if (await _todoRepository.GetByTitleAsync(args.Title) != null)
                     {
@@ -41,7 +45,7 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<ICommandResult> DeleteAsync(int id)
+        public async Task<CommandResult> DeleteAsync(int id)
         {
             Todo? todo = await _todoRepository.GetByIdAsync(id);
             if (todo != null)
@@ -72,7 +76,7 @@ namespace TodoWeb.Data.Services
             return todoViewModel;
         }
 
-        public async Task<ICommandResult> ToggleStatus(IEnumerable<int> ids)
+        public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
         {
             if (ids.Any())
             {
@@ -94,14 +98,18 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<ICommandResult> UpdateAsync(int id, UpdateTodoArgs args)
+        public async Task<CommandResult> UpdateAsync(int id, UpdateTodoArgs args)
         {
             var todo = await _todoRepository.GetByIdAsync(id);
             if (todo != null)
             {
+                args.Title = args.Title.Trim();
+                if (args.Description != null) {
+                    args.Description = args.Description.Trim();
+                }
                 try
                 {
-                    if (await ValidateTodo(_mapper.Map<CreateTodoArgs>(args)))
+                    if (ValidateTodo(_mapper.Map<CreateTodoArgs>(args)))
                     {
                         todo.Description = (args.Description ?? "").Trim();
                         todo.Title = args.Title.Trim();
@@ -120,7 +128,7 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<bool> ValidateTodo(CreateTodoArgs args)
+        public bool ValidateTodo(CreateTodoArgs args)
         {
             string title = args.Title;
             if (args.Title == null)
