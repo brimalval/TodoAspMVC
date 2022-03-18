@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TodoWeb.Data;
-using TodoWeb.Data.Repositories;
 using TodoWeb.Data.Services;
 using TodoWeb.Dtos;
 using TodoWeb.Models;

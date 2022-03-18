@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using System.Text.RegularExpressions;
-using TodoWeb.Data.Repositories;
+using System.Data;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace TodoWeb.Data.Services
 {
@@ -10,14 +11,14 @@ namespace TodoWeb.Data.Services
     {
         private readonly CommandResult _commandResult;
         private readonly IMapper _mapper;
-        private readonly ITodoRepository _todoRepository;
+        private readonly ApplicationDbContext _context;
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
-        public TodoService (ITodoRepository todoRepository, IMapper mapper)
+        public TodoService (ApplicationDbContext context, IMapper mapper)
         {
             _commandResult = new CommandResult();
             _mapper = mapper;
-            _todoRepository = todoRepository;
+            _context = context;
         }
         public async Task<CommandResult> CreateAsync(CreateTodoArgs args)
         {
@@ -29,13 +30,14 @@ namespace TodoWeb.Data.Services
                 }
                 if (ValidateTodo(args))
                 {
-                    if (await _todoRepository.GetByTitleAsync(args.Title) != null)
+                    if (await GetByTitleAsync(args.Title) != null)
                     {
                         _commandResult.AddError("Title", "A task with this title already exists.");
                     }
                     else
                     {
-                        await _todoRepository.CreateAsync(_mapper.Map<Todo>(args));
+                        await _context.Todos.AddAsync(_mapper.Map<Todo>(args));
+                        await _context.SaveChangesAsync();
                     }
                 }
             } catch
@@ -47,10 +49,11 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> DeleteAsync(int id)
         {
-            Todo? todo = await _todoRepository.GetByIdAsync(id);
+            Todo? todo = await _context.Todos.FindAsync(id);
             if (todo != null)
             {
-                await _todoRepository.DeleteAsync(todo);
+                _context.Todos.Remove(todo);
+                await _context.SaveChangesAsync(); ;
             } else
             {
                 _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
@@ -61,7 +64,7 @@ namespace TodoWeb.Data.Services
         public async Task<IEnumerable<TodoViewModel>> GetAllAsync()
         {
             List<TodoViewModel> todoViewModels = new();
-            IEnumerable<Todo> todos = await _todoRepository.GetAllAsync();
+            IEnumerable<Todo> todos = await _context.Todos.ToListAsync();
             foreach(Todo todo in todos)
             {
                 todoViewModels.Add(_mapper.Map<TodoViewModel>(todo));
@@ -71,7 +74,7 @@ namespace TodoWeb.Data.Services
 
         public async Task<TodoViewModel> GetByIdAsync(int id)
         {
-            Todo? todo = await _todoRepository.GetByIdAsync(id);
+            Todo? todo = await _context.Todos.FindAsync(id);
             TodoViewModel todoViewModel = _mapper.Map<TodoViewModel>(todo);
             return todoViewModel;
         }
@@ -82,13 +85,14 @@ namespace TodoWeb.Data.Services
             {
                 try
                 {
-                    var tasks = await _todoRepository.GetAllAsync();
+                    var tasks = await _context.Todos.ToListAsync();
                     var updatedTasks = tasks.Where(task => ids.Contains(task.Id));
                     foreach (var task in updatedTasks)
                     {
                         task.Done = !task.Done;
-                        await _todoRepository.UpdateAsync(task);
+                        _context.Todos.Update(task);
                     }
+                    await _context.SaveChangesAsync();
                 }
                 catch
                 {
@@ -100,7 +104,7 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> UpdateAsync(int id, UpdateTodoArgs args)
         {
-            var todo = await _todoRepository.GetByIdAsync(id);
+            var todo = await _context.Todos.FindAsync(id);
             if (todo != null)
             {
                 args.Title = args.Title.Trim();
@@ -114,7 +118,8 @@ namespace TodoWeb.Data.Services
                         todo.Description = (args.Description ?? "").Trim();
                         todo.Title = args.Title.Trim();
                         todo.Done = args.Done;
-                        await _todoRepository.UpdateAsync(todo);
+                        _context.Todos.Update(todo);
+                        await _context.SaveChangesAsync();
                     }
                 }
                 catch
@@ -152,6 +157,11 @@ namespace TodoWeb.Data.Services
                 }
             }
             return _commandResult.IsValid;
+        }
+
+        public async Task<Todo?> GetByTitleAsync(string title) 
+        {
+            return await _context.Todos.FirstOrDefaultAsync(todo => todo.Title == title);
         }
     }
 }

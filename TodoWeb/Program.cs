@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using TodoWeb.Data;
-using TodoWeb.Data.Repositories;
 using TodoWeb.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,10 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<ITodoService, TodoService>();
-builder.Services.AddScoped<ICommandResult, ModelStateCommandResult>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
