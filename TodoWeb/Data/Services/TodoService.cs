@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Data;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
@@ -10,14 +9,12 @@ namespace TodoWeb.Data.Services
     public class TodoService : ITodoService
     {
         private readonly CommandResult _commandResult;
-        private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
-        public TodoService (ApplicationDbContext context, IMapper mapper)
+        public TodoService (ApplicationDbContext context)
         {
             _commandResult = new CommandResult();
-            _mapper = mapper;
             _context = context;
         }
         public async Task<CommandResult> CreateAsync(CreateTodoArgs args)
@@ -37,7 +34,12 @@ namespace TodoWeb.Data.Services
                     }
                     else
                     {
-                        await _context.Todos.AddAsync(_mapper.Map<Todo>(args));
+                        Todo todo = new()
+                        {
+                            Title = args.Title,
+                            Description = args.Description
+                        };
+                        await _context.Todos.AddAsync(todo);
                         await _context.SaveChangesAsync();
                     }
                 }
@@ -118,7 +120,12 @@ namespace TodoWeb.Data.Services
                 {
                     try
                     {
-                        if (ValidateTodo(_mapper.Map<CreateTodoArgs>(args)))
+                        CreateTodoArgs createArgs = new()
+                        {
+                            Title = args.Title,
+                            Description = args.Description
+                        };
+                        if (ValidateTodo(createArgs))
                         {
                             todo.Description = (args.Description ?? "").Trim();
                             todo.Title = args.Title.Trim();

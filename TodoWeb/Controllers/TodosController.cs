@@ -1,14 +1,5 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using TodoWeb.Data;
 using TodoWeb.Data.Services;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
@@ -18,18 +9,14 @@ namespace TodoWeb.Controllers
     public class TodosController : Controller
     {
         private readonly ITodoService _todoService;
-        // Don't use automapper
-        private readonly IMapper _mapper;
-        public TodosController(ITodoService todoService, IMapper mapper)
+        public TodosController(ITodoService todoService)
         {
             _todoService = todoService;
-            _mapper = mapper;
         }
 
         // GET: Todos
         public async Task<IActionResult> Index()
         {
-            // return View(await _context.Todos.ToListAsync());
             return View(await _todoService.GetAllAsync());
         }
 
@@ -95,9 +82,16 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateTodoArgs args)
         {
+            Todo todo = new()
+            {
+                Id = args.Id,
+                Title = args.Title,
+                Description = args.Description
+            };
+
             if (!ModelState.IsValid) 
             {
-                return View(_mapper.Map<Todo>(args));
+                return View(todo);
             }
 
             var commandResult = await _todoService.UpdateAsync(args);
@@ -106,7 +100,7 @@ namespace TodoWeb.Controllers
                 RedirectToAction(nameof(Index)) : 
                 ShowErrors(
                     commandResult,
-                    _mapper.Map<Todo>(args)
+                    todo
                 );
         }
 
