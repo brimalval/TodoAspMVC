@@ -30,6 +30,7 @@ namespace TodoWeb.Data.Services
                 }
                 if (ValidateTodo(args))
                 {
+                    // TODO: Change condition to include a check if it comes from the same user
                     if (await GetByTitleAsync(args.Title) != null)
                     {
                         _commandResult.AddError("Title", "A task with this title already exists.");
@@ -61,22 +62,16 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<IEnumerable<TodoViewModel>> GetAllAsync()
+        public async Task<IEnumerable<Todo>> GetAllAsync()
         {
-            List<TodoViewModel> todoViewModels = new();
             IEnumerable<Todo> todos = await _context.Todos.ToListAsync();
-            foreach(Todo todo in todos)
-            {
-                todoViewModels.Add(_mapper.Map<TodoViewModel>(todo));
-            }
-            return todoViewModels;
+            return todos;
         }
 
-        public async Task<TodoViewModel> GetByIdAsync(int id)
+        public async Task<Todo?> GetByIdAsync(int id)
         {
             Todo? todo = await _context.Todos.FindAsync(id);
-            TodoViewModel todoViewModel = _mapper.Map<TodoViewModel>(todo);
-            return todoViewModel;
+            return todo;
         }
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
@@ -102,34 +97,42 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<CommandResult> UpdateAsync(int id, UpdateTodoArgs args)
+        public async Task<CommandResult> UpdateAsync(UpdateTodoArgs args)
         {
-            var todo = await _context.Todos.FindAsync(id);
-            if (todo != null)
+            var todo = await _context.Todos.FindAsync(args.Id);
+            if (todo == null)
+            {
+                _commandResult.AddError("Todos", $"Task with ID {args.Id} not found.");
+            } 
+            else
             {
                 args.Title = args.Title.Trim();
-                if (args.Description != null) {
-                    args.Description = args.Description.Trim();
-                }
-                try
+                args.Description = args.Description?.Trim();
+
+                // TODO: Change condition to include a check for if it comes from the same user
+                bool duplicateExists = await _context.Todos.AnyAsync(t => t.Id != args.Id && t.Title == args.Title);
+                if (duplicateExists)
                 {
-                    if (ValidateTodo(_mapper.Map<CreateTodoArgs>(args)))
+                    _commandResult.AddError("Title", "A task with this title already exists.");
+                } else
+                {
+                    try
                     {
-                        todo.Description = (args.Description ?? "").Trim();
-                        todo.Title = args.Title.Trim();
-                        todo.Done = args.Done;
-                        _context.Todos.Update(todo);
-                        await _context.SaveChangesAsync();
+                        if (ValidateTodo(_mapper.Map<CreateTodoArgs>(args)))
+                        {
+                            todo.Description = (args.Description ?? "").Trim();
+                            todo.Title = args.Title.Trim();
+                            todo.Done = args.Done;
+                            _context.Todos.Update(todo);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    catch
+                    {
+                        _commandResult.AddError("Todos", "There was an error creating your task.");
                     }
                 }
-                catch
-                {
-                    _commandResult.AddError("Todos", "There was an error creating your task.");
-                }
-            } else
-            {
-                _commandResult.AddError("Todos", $"Task with ID {id} not found.");
-            }
+            } 
             return _commandResult;
         }
 

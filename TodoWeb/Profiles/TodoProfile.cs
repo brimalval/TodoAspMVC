@@ -13,9 +13,6 @@ namespace TodoWeb.Profiles
             CreateMap<UpdateTodoArgs, Todo>();
             // CreateTodoArgs is also a subset of UpdateTodoArgs
             CreateMap<UpdateTodoArgs, CreateTodoArgs>();
-            CreateMap<UpdateTodoArgs, TodoViewModel>();
-            // Viewing of a todo extracts viewable info from todo model
-            CreateMap<Todo, TodoViewModel>();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model TodoWeb.Dtos.TodoViewModel
+﻿@model TodoWeb.Models.Todo
 
 @{
     ViewData["Title"] = "Details";
@@ -19,7 +19,7 @@
             @Html.DisplayNameFor(model => model.Title)
         </dt>
         <dd>
-            <summary class="form-control">@Html.DisplayFor(model => model.Title)</sum>
+            <summary class="form-control">@Html.DisplayFor(model => model.Title)</summary>
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Description)

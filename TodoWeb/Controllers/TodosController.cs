@@ -41,13 +41,9 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            TodoViewModel todoViewModel = await _todoService.GetByIdAsync(id ?? -1);
-            if (todoViewModel == null)
-            {
-                return NotFound();
-            }
+            Todo todo = await _todoService.GetByIdAsync(id ?? -1);
 
-            return View(todoViewModel);
+            return View(todo);
         }
 
         // GET: Todos/Create
@@ -101,16 +97,16 @@ namespace TodoWeb.Controllers
         {
             if (!ModelState.IsValid) 
             {
-                return View(_mapper.Map<TodoViewModel>(args));
+                return View(_mapper.Map<Todo>(args));
             }
 
-            var commandResult = await _todoService.UpdateAsync(id, args);
+            var commandResult = await _todoService.UpdateAsync(args);
 
             return commandResult.IsValid ?
                 RedirectToAction(nameof(Index)) : 
                 ShowErrors(
                     commandResult,
-                    _mapper.Map<TodoViewModel>(args)
+                    _mapper.Map<Todo>(args)
                 );
         }
 
