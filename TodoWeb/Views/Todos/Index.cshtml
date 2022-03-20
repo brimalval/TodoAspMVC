@@ -24,7 +24,7 @@
         <article class="todo-container">
 
             <input type="checkbox" class="todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" aria-label="Task completion status checkbox"/>
-            <label class="checkbox-display icon-container" for="checkbox-@item.Id"></label>
+            <label class="checkbox-display" for="checkbox-@item.Id"></label>
 
             <div class="flex-grow flex flex-col overflow-auto">
                 <summary id="title-@item.Id" class='@(item.Done ? "line-through" : "") font-semibold'>

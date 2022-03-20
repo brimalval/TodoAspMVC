@@ -1,0 +1,22 @@
+﻿<ul class="flex space-x-3">
+@if (User.Identity.IsAuthenticated)
+{
+    <li>
+        <a asp-controller="Account" title="Manage">Hello @User.Claims.First(claim => claim.Value != null).Value!</a>
+    </li>
+    <li>
+        <form class="form-inline" asp-controller="Account" asp-action="Logout">
+            <button type="submit">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li>
+        <a asp-controller="Account" asp-action="Register">Register</a>
+    </li>
+    <li>
+        <a asp-controller="Account" asp-action="Login">Log-In</a>
+    </li>
+}
+</ul>

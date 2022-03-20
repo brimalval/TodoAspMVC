@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoWeb.Data.Services;
 using TodoWeb.Dtos;
@@ -6,12 +7,15 @@ using TodoWeb.Models;
 
 namespace TodoWeb.Controllers
 {
+    [Authorize]
     public class TodosController : Controller
     {
         private readonly ITodoService _todoService;
-        public TodosController(ITodoService todoService)
+        private IHttpContextAccessor _httpContextAccessor;
+        public TodosController(ITodoService todoService, IHttpContextAccessor httpContextAccessor)
         {
             _todoService = todoService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: Todos
@@ -106,7 +110,8 @@ namespace TodoWeb.Controllers
 
         private IActionResult ShowErrors(CommandResult commandResult, object model)
         {
-            foreach (var error in commandResult.Errors)
+            var errors = commandResult.Errors;
+            foreach (var error in errors)
             {
                 ModelState.AddModelError(error.Key, error.Value);
             }

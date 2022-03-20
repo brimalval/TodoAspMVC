@@ -1,0 +1,37 @@
+﻿@model TodoWeb.Dtos.LoginArgs
+
+@{
+    ViewData["Title"] = "Log-In";
+}
+
+<section aria-label="Log-in form">
+    <h1>Log-In</h1>
+
+    <div>
+        <form asp-controller="Account" asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group flex items-center">
+                <input class="form-check-input" asp-for="RememberMe" />
+                <label for="RememberMe" class="checkbox-display"></label> 
+                @Html.DisplayNameFor(model => model.RememberMe)
+            </div>
+            <div class="form-group col-container">
+                <input type="submit" value="Log-In" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

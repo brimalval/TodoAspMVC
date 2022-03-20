@@ -1,5 +1,8 @@
-﻿namespace TodoWeb.Dtos
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TodoWeb.Dtos
 {
+    [Keyless]
     public class CreateTodoArgs
     {
         public string Title { get; set; }

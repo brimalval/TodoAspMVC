@@ -1,0 +1,3 @@
+nav a {
+	@apply hover:bg-primary hover:text-white duration-300 p-3;
+}

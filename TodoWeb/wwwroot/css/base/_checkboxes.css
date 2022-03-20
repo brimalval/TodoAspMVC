@@ -1,5 +1,5 @@
 .checkbox-display {
-  @apply border-2 border-gray-500 rounded-sm transition duration-300 m-4 cursor-pointer max-w-[1.25rem];
+  @apply border-2 border-gray-500 rounded-sm transition duration-300 m-4 cursor-pointer max-w-[1.25rem] w-[1.25rem];
 }
 
 input[type="checkbox"] {
@@ -7,7 +7,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"] + .checkbox-display {
-  @apply bg-cover;
+  @apply bg-cover icon-container;
 }
 
 input[type="checkbox"]:checked + .checkbox-display {

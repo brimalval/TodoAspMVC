@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoWeb.Models;
+using TodoWeb.Dtos;
 
 namespace TodoWeb.Data
 {
@@ -10,5 +11,6 @@ namespace TodoWeb.Data
         }
 
         public DbSet<Todo> Todos { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

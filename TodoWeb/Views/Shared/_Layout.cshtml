@@ -8,8 +8,15 @@
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TodoWeb.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-slate-200 flex justify-center px-3 py-7">
-    <main role="main">
+<body class="bg-slate-200 flex flex-col items-center">
+    <header class="block w-full mb-5">
+        <nav class="font-sans items-center flex place-content-between px-3">
+            <a class="text-lg font-semibold" asp-controller="Home" asp-action="Index">Home</a>
+            <partial name="_LoginPartial" />
+        </nav>
+    </header>
+
+    <main role="main" class="mx-3 my-7">
         @RenderBody()
     </main>
 
