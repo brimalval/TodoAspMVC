@@ -9,7 +9,7 @@ namespace TodoWeb.Dtos
     {
         [Required]
         [DataType(DataType.EmailAddress)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Please enter a valid email.")]
         public string Email { get; set; }
 
         [Required]

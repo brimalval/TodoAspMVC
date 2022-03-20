@@ -6,6 +6,7 @@ using System.Text;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text.RegularExpressions;
 
 namespace TodoWeb.Data.Services
 {
@@ -70,7 +71,7 @@ namespace TodoWeb.Data.Services
             {
                 _commandResult.AddError("Email", "A user with this email already exists.");
             } 
-            else
+            else if (ValidatePassword(args.Password))
             {
                 string hashedPassword = HashString(args.Password);
                 User user = new()
@@ -110,6 +111,31 @@ namespace TodoWeb.Data.Services
         {
             User user = await _dbContext.Users.FirstAsync(u => u.Email == email);
             return HashString(password) == user.PasswordHash;
+        }
+        public bool ValidatePassword(string password)
+        {
+            bool validPassword = true;
+            if (password.Length <= 8 || password.Length >= 21)
+            {
+                _commandResult.AddError("Password", "Password must have 8 - 20 characters.");
+                validPassword = false;
+            }
+            if (!Regex.Match(password, @"[a-z]").Success)
+            {
+                _commandResult.AddError("Password", "Password must contain at least 1 lowercase character.");
+                validPassword = false;
+            }
+            if (!Regex.Match(password, @"[A-Z]").Success)
+            {
+                _commandResult.AddError("Password", "Password must contain at least 1 uppercase character.");
+                validPassword = false;
+            }
+            if (!Regex.Match(password, @"[0-9]").Success)
+            {
+                _commandResult.AddError("Password", "Password must contain at least 1 number.");
+                validPassword = false;
+            }
+            return validPassword;
         }
         public async Task<User?> GetCurrentUser()
         {

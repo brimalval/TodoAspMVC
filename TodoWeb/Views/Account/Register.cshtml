@@ -25,7 +25,9 @@
                 <input asp-for="ConfirmPassword" class="form-control" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
+
             <div class="form-group col-container">
+                <p>Already have an account? <a asp-action="Login" class="text-primary">Log-in</a></p>
                 <input type="submit" value="Register" class="btn btn-primary" />
             </div>
         </form>
