@@ -11,18 +11,19 @@ namespace TodoWeb.Data.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly ApplicationDbContext _context;
+        private readonly HttpContext _httpContext;
+        private readonly ApplicationDbContext _dbContext;
         private readonly CommandResult _commandResult;
         public AccountService(ApplicationDbContext context, IHttpContextAccessor contextAccessor)
         {
-            _context = context;
-            _contextAccessor = contextAccessor;
+            _dbContext = context;
+            _httpContext = contextAccessor.HttpContext!;
             _commandResult = new();
         }
         public async Task<CommandResult> Login(LoginArgs args)
         {
-            if (!await VerifyPasswordAsync(args.Email, args.Password))
+            User? user = await GetUserByEmailAsync(args.Email);
+            if (user == null || !VerifyPassword(user, args.Password))
             {
                 _commandResult.AddError("Email", "Invalid email or password");
                 _commandResult.AddError("Password", " ");
@@ -31,18 +32,24 @@ namespace TodoWeb.Data.Services
             {
                 List<Claim> claims = new()
                 {
-                    new Claim(ClaimTypes.Email, args.Email)
+                    new Claim(ClaimTypes.Email, args.Email),
+                    new Claim(ClaimTypes.NameIdentifier, $"{user.Id}")
                 };
+
                 ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 ClaimsPrincipal principal = new(identity);
-                HttpContext? httpContext = _contextAccessor.HttpContext;
                 var authProperties = new AuthenticationProperties()
                 {
                     IsPersistent = args.RememberMe
                 };
-                if (httpContext != null)
+
+                if (_httpContext != null)
                 {
-                    await httpContext.SignInAsync(principal, authProperties);
+                    await _httpContext.SignInAsync(principal, authProperties);
+                } 
+                else
+                {
+                    _commandResult.AddError("User", "Login failed.");
                 }
             }
             return _commandResult;
@@ -50,16 +57,15 @@ namespace TodoWeb.Data.Services
 
         public async Task Logout()
         {
-            HttpContext? httpContext = _contextAccessor.HttpContext;
-            if (httpContext != null)
+            if (_httpContext != null)
             {
-                await httpContext.SignOutAsync();
+                await _httpContext.SignOutAsync();
             }
         }
 
         public async Task<CommandResult> Register(RegisterArgs args)
         {
-            bool duplicate = await _context.Users.AnyAsync(user => user.Email == args.Email);
+            bool duplicate = await _dbContext.Users.AnyAsync(user => user.Email == args.Email);
             if (duplicate)
             {
                 _commandResult.AddError("Email", "A user with this email already exists.");
@@ -74,8 +80,8 @@ namespace TodoWeb.Data.Services
                 };
                 try
                 {
-                    await _context.Users.AddAsync(user);
-                    await _context.SaveChangesAsync();
+                    await _dbContext.Users.AddAsync(user);
+                    await _dbContext.SaveChangesAsync();
                 } catch
                 {
                     _commandResult.AddError("Account", "There was an error in creating your account.");
@@ -102,8 +108,22 @@ namespace TodoWeb.Data.Services
         }
         public async Task<bool> VerifyPasswordAsync(string email, string password)
         {
-            User user = await _context.Users.FirstAsync(u => u.Email == email);
+            User user = await _dbContext.Users.FirstAsync(u => u.Email == email);
             return HashString(password) == user.PasswordHash;
+        }
+        public async Task<User?> GetCurrentUser()
+        {
+            string idString = _httpContext.User
+                .FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?
+                .Value ?? "-1";
+            int id = int.Parse(idString);
+
+            return await _dbContext.Users.FindAsync(id);
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == email);
         }
     }
 }

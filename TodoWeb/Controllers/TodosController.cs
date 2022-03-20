@@ -11,11 +11,9 @@ namespace TodoWeb.Controllers
     public class TodosController : Controller
     {
         private readonly ITodoService _todoService;
-        private IHttpContextAccessor _httpContextAccessor;
-        public TodosController(ITodoService todoService, IHttpContextAccessor httpContextAccessor)
+        public TodosController(ITodoService todoService)
         {
             _todoService = todoService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: Todos
@@ -33,6 +31,10 @@ namespace TodoWeb.Controllers
             }
 
             Todo todo = await _todoService.GetByIdAsync(id ?? -1);
+            if (todo == null)
+            {
+                return NotFound();
+            }
 
             return View(todo);
         }

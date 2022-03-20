@@ -1,8 +1,10 @@
 ﻿<ul class="flex space-x-3">
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     <li>
-        <a asp-controller="Account" title="Manage">Hello @User.Claims.First(claim => claim.Value != null).Value!</a>
+        <a asp-controller="Account" title="Manage">
+            Hello @User.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value!
+        </a>
     </li>
     <li>
         <form class="form-inline" asp-controller="Account" asp-action="Logout">

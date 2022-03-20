@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoWeb.Data.Services;
 using TodoWeb.Dtos;
+using TodoWeb.Models;
 
 namespace TodoWeb.Controllers
 {
@@ -11,8 +13,17 @@ namespace TodoWeb.Controllers
         {
             _accountService = accountService;
         }
-        public IActionResult Login()
+        public async Task<bool> IsLoggedIn()
         {
+            User? currentUser = await _accountService.GetCurrentUser();
+            return currentUser != null;
+        }
+        public async Task<IActionResult> Login()
+        {
+            if (await IsLoggedIn())
+            {
+                return RedirectToAction("Index", "Todos");
+            }
             return View();
         }
 
@@ -31,8 +42,12 @@ namespace TodoWeb.Controllers
                 ShowErrors<LoginArgs>(commandResult, args);
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
+            if (await IsLoggedIn())
+            {
+                return RedirectToAction("Index", "Todos");
+            }
             return View();
         }
 
