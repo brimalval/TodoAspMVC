@@ -27,7 +27,7 @@ namespace TodoWeb.Data.Services
             if (user == null || !VerifyPassword(user, args.Password))
             {
                 _commandResult.AddError("Email", "Invalid email or password");
-                _commandResult.AddError("Password", " ");
+                _commandResult.AddError("Password", "Invalid email or password");
             } 
             else
             {
@@ -44,24 +44,14 @@ namespace TodoWeb.Data.Services
                     IsPersistent = args.RememberMe
                 };
 
-                if (_httpContext != null)
-                {
-                    await _httpContext.SignInAsync(principal, authProperties);
-                } 
-                else
-                {
-                    _commandResult.AddError("User", "Login failed.");
-                }
+                await _httpContext.SignInAsync(principal, authProperties);
             }
             return _commandResult;
         }
 
         public async Task Logout()
         {
-            if (_httpContext != null)
-            {
-                await _httpContext.SignOutAsync();
-            }
+            await _httpContext.SignOutAsync();
         }
 
         public async Task<CommandResult> Register(RegisterArgs args)
@@ -107,11 +97,6 @@ namespace TodoWeb.Data.Services
         {
             return HashString(password) == user.PasswordHash;
         }
-        public async Task<bool> VerifyPasswordAsync(string email, string password)
-        {
-            User user = await _dbContext.Users.FirstAsync(u => u.Email == email);
-            return HashString(password) == user.PasswordHash;
-        }
         public bool ValidatePassword(string password)
         {
             bool validPassword = true;
@@ -140,8 +125,7 @@ namespace TodoWeb.Data.Services
         public async Task<User?> GetCurrentUser()
         {
             string idString = _httpContext.User
-                .FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?
-                .Value ?? "-1";
+                .FindFirstValue(ClaimTypes.NameIdentifier) ?? "-1";
             int id = int.Parse(idString);
 
             return await _dbContext.Users.FindAsync(id);
