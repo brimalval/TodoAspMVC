@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TodoWeb.Data;
 using TodoWeb.Data.Services;
 
@@ -10,14 +11,22 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
     x => { 
         x.LoginPath = "/Account/Login";
     });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsAdmin", 
+        policy => policy.RequireClaim(ClaimTypes.Email, "admin@gmail.com"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
