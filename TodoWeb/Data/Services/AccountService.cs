@@ -28,24 +28,23 @@ namespace TodoWeb.Data.Services
             {
                 _commandResult.AddError("Email", "Invalid email or password");
                 _commandResult.AddError("Password", "Invalid email or password");
+                return _commandResult;
             } 
-            else
+            // refactor for IoC
+            List<Claim> claims = new()
             {
-                List<Claim> claims = new()
-                {
-                    new Claim(ClaimTypes.Email, args.Email),
-                    new Claim(ClaimTypes.NameIdentifier, $"{user.Id}")
-                };
+                new Claim(ClaimTypes.Email, args.Email),
+                new Claim(ClaimTypes.NameIdentifier, $"{user.Id}")
+            };
 
-                ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                ClaimsPrincipal principal = new(identity);
-                var authProperties = new AuthenticationProperties()
-                {
-                    IsPersistent = args.RememberMe
-                };
+            ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsPrincipal principal = new(identity);
+            var authProperties = new AuthenticationProperties()
+            {
+                IsPersistent = args.RememberMe
+            };
 
-                await _httpContext.SignInAsync(principal, authProperties);
-            }
+            await _httpContext.SignInAsync(principal, authProperties);
             return _commandResult;
         }
 
@@ -60,8 +59,10 @@ namespace TodoWeb.Data.Services
             if (duplicate)
             {
                 _commandResult.AddError("Email", "A user with this email already exists.");
+                return _commandResult;
             } 
-            else if (ValidatePassword(args.Password))
+
+            if (ValidatePassword(args.Password))
             {
                 string hashedPassword = HashString(args.Password);
                 User user = new()
@@ -73,7 +74,9 @@ namespace TodoWeb.Data.Services
                 {
                     await _dbContext.Users.AddAsync(user);
                     await _dbContext.SaveChangesAsync();
-                } catch
+                }
+                // Check for more specific errors (e.g. timeout, concurrency, etc.)
+                catch
                 {
                     _commandResult.AddError("Account", "There was an error in creating your account.");
                 }
@@ -83,6 +86,8 @@ namespace TodoWeb.Data.Services
 
         public string HashString(string data)
         {
+            // MD5 is weak
+            // RFC2898, store the salt
             byte[] stringBytes = ASCIIEncoding.ASCII.GetBytes(data);
             byte[] hashedBytes = MD5.Create().ComputeHash(stringBytes);
             StringBuilder stringHash = new();

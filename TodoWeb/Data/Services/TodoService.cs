@@ -42,18 +42,16 @@ namespace TodoWeb.Data.Services
                     if (await GetByTitleAsync(args.Title) != null)
                     {
                         _commandResult.AddError("Title", "A task with this title already exists.");
+                        return _commandResult;
                     }
-                    else
+                    Todo todo = new()
                     {
-                        Todo todo = new()
-                        {
-                            Title = args.Title,
-                            Description = args.Description,
-                            CreatedBy = user
-                        };
-                        await _dbContext.Todos.AddAsync(todo);
-                        await _dbContext.SaveChangesAsync();
-                    }
+                        Title = args.Title,
+                        Description = args.Description,
+                        CreatedBy = user
+                    };
+                    await _dbContext.Todos.AddAsync(todo);
+                    await _dbContext.SaveChangesAsync();
                 }
             } catch
             {
@@ -69,10 +67,9 @@ namespace TodoWeb.Data.Services
             {
                 _dbContext.Todos.Remove(todo);
                 await _dbContext.SaveChangesAsync(); ;
-            } else
-            {
-                _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
-            }
+                return _commandResult;
+            } 
+            _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
             return _commandResult;
         }
 
@@ -96,26 +93,28 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
         {
-            if (ids.Any())
+            if (!ids.Any())
             {
-                User? user = await _accountService.GetCurrentUser();
-                try
-                {
-                    var tasks = await GetAllAsync();
-                    var updatedTasks = tasks
-                        .Where(task => ids.Contains(task.Id));
+                return _commandResult;
+            }
 
-                    foreach (var task in updatedTasks)
-                    {
-                        task.Done = !task.Done;
-                        _dbContext.Todos.Update(task);
-                    }
-                    await _dbContext.SaveChangesAsync();
-                }
-                catch
+            User? user = await _accountService.GetCurrentUser();
+            try
+            {
+                var tasks = await GetAllAsync();
+                var updatedTasks = tasks
+                    .Where(task => ids.Contains(task.Id));
+
+                foreach (var task in updatedTasks)
                 {
-                    _commandResult.AddError("Todos", "Unable to update tasks.");
+                    task.Done = !task.Done;
+                    _dbContext.Todos.Update(task);
                 }
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                _commandResult.AddError("Todos", "Unable to update tasks.");
             }
             return _commandResult;
         }
@@ -126,53 +125,47 @@ namespace TodoWeb.Data.Services
             if (todo == null)
             {
                 _commandResult.AddError("Todos", $"Task with ID {args.Id} not found.");
+                return _commandResult;
             } 
-            else
-            {
-                User? user = await _accountService.GetCurrentUser();
-                args.Title = args.Title.Trim();
-                args.Description = args.Description?.Trim();
+            
+            User? user = await _accountService.GetCurrentUser();
+            args.Title = args.Title.Trim();
+            args.Description = args.Description?.Trim();
 
-                bool duplicateExists = await _dbContext.Todos
-                    .AnyAsync(t => t.Id != args.Id && t.Title == args.Title && t.CreatedBy == user);
-                if (duplicateExists)
+            bool duplicateExists = await _dbContext.Todos
+                .AnyAsync(t => t.Id != args.Id && t.Title == args.Title && t.CreatedBy == user);
+            if (duplicateExists)
+            {
+                _commandResult.AddError("Title", "A task with this title already exists.");
+                return _commandResult;
+            }                     
+            try
+            {
+                CreateTodoArgs createArgs = new()
                 {
-                    _commandResult.AddError("Title", "A task with this title already exists.");
-                } else
+                    Title = args.Title,
+                    Description = args.Description
+                };
+                if (ValidateTodo(createArgs))
                 {
-                    try
-                    {
-                        CreateTodoArgs createArgs = new()
-                        {
-                            Title = args.Title,
-                            Description = args.Description
-                        };
-                        if (ValidateTodo(createArgs))
-                        {
-                            todo.Description = (args.Description ?? "").Trim();
-                            todo.Title = args.Title.Trim();
-                            todo.Done = args.Done;
-                            _dbContext.Todos.Update(todo);
-                            await _dbContext.SaveChangesAsync();
-                        }
-                    }
-                    catch
-                    {
-                        _commandResult.AddError("Todos", "There was an error creating your task.");
-                    }
+                    todo.Description = (args.Description ?? "").Trim();
+                    todo.Title = args.Title.Trim();
+                    todo.Done = args.Done;
+                    _dbContext.Todos.Update(todo);
+                    await _dbContext.SaveChangesAsync();
                 }
-            } 
+            }
+            catch
+            {
+                _commandResult.AddError("Todos", "There was an error creating your task.");
+            }
             return _commandResult;
         }
 
         public bool ValidateTodo(CreateTodoArgs args)
         {
             string title = args.Title;
-            if (args.Title == null)
-            {
-                _commandResult.AddError("Title", "Title is required.");
-            } 
-            else if (title.Trim().Length >=  titleCharLimit)
+            if (title.Trim().Length >=  titleCharLimit)
             {
                 _commandResult.AddError("Title", "The inputted title is too long.");
             }
@@ -181,12 +174,9 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("Title", "Special characters are not allowed.");
             }
 
-            if (args.Description != null)
+            if (args.Description != null && args.Description.Length > descriptionCharLimit)
             {
-                if (args.Description.Length > descriptionCharLimit)
-                {
-                    _commandResult.AddError("Description", "The given description is too long.");
-                }
+                _commandResult.AddError("Description", "The given description is too long.");
             }
             return _commandResult.IsValid;
         }
