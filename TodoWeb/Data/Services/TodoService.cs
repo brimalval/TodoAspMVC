@@ -66,29 +66,39 @@ namespace TodoWeb.Data.Services
             if (todo != null)
             {
                 _dbContext.Todos.Remove(todo);
-                await _dbContext.SaveChangesAsync(); ;
+                await _dbContext.SaveChangesAsync();
                 return _commandResult;
             } 
             _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
             return _commandResult;
         }
 
-        public async Task<IEnumerable<Todo>> GetAllAsync()
+        public async Task<IEnumerable<TodoViewDTO>> GetAllAsync()
         {
             User? currentUser = await _accountService.GetCurrentUser();
-            IEnumerable<Todo> todos = await _dbContext.Todos
+            List<TodoViewDTO> viewDTOs = new();
+            (await _dbContext.Todos
                 .Where(todo => todo.CreatedBy == currentUser)
-                .ToListAsync();
-            return todos;
+                .ToListAsync())
+                .ForEach(todo =>
+                {
+                    viewDTOs.Add(ToViewDTO(todo));
+                });
+
+            return viewDTOs;
         }
 
-        public async Task<Todo?> GetByIdAsync(int id)
+        public async Task<TodoViewDTO?> GetByIdAsync(int id)
         {
             User? user = await _accountService.GetCurrentUser();
             Todo? todo = await _dbContext.Todos
                 .Where(t => t.CreatedBy == user)
                 .FirstOrDefaultAsync(t => t.Id == id);
-            return todo;
+            if (todo == null)
+            {
+                return null;
+            }
+            return ToViewDTO(todo);
         }
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
@@ -101,7 +111,7 @@ namespace TodoWeb.Data.Services
             User? user = await _accountService.GetCurrentUser();
             try
             {
-                var tasks = await GetAllAsync();
+                var tasks = _dbContext.Todos;
                 var updatedTasks = tasks
                     .Where(task => ids.Contains(task.Id));
 
@@ -186,6 +196,19 @@ namespace TodoWeb.Data.Services
             User? user = await _accountService.GetCurrentUser();
             return await _dbContext.Todos
                 .FirstOrDefaultAsync(todo => todo.Title == title && todo.CreatedBy == user);
+        }
+
+        public TodoViewDTO ToViewDTO(Todo todo)
+        {
+            return new TodoViewDTO
+            {
+                Id = todo.Id,
+                Title = todo.Title,
+                Description = todo.Description,
+                Done = todo.Done,
+                CreatedDateTime = todo.CreatedDateTime,
+                CreatedBy = todo.CreatedBy,
+            };
         }
     }
 }

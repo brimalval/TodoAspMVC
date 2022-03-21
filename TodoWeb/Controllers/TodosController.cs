@@ -30,7 +30,7 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            Todo todo = await _todoService.GetByIdAsync(id ?? -1);
+            var todo = await _todoService.GetByIdAsync(id ?? -1);
             if (todo == null)
             {
                 return NotFound();
