@@ -1,4 +1,4 @@
-﻿namespace TodoWeb.Data.Services
+﻿namespace TodoWeb.Data
 {
     public class CommandResult
     {

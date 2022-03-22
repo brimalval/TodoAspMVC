@@ -1,24 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Text.RegularExpressions;
+using TodoWeb.Data.Providers;
 
 namespace TodoWeb.Data.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly HttpContext _httpContext;
+        private readonly IAuthenticationProvider _authenticationProvider;
         private readonly ApplicationDbContext _dbContext;
         private readonly CommandResult _commandResult;
-        public AccountService(ApplicationDbContext context, IHttpContextAccessor contextAccessor)
+        public AccountService(ApplicationDbContext context, IAuthenticationProvider authenticationProvider)
         {
             _dbContext = context;
-            _httpContext = contextAccessor.HttpContext!;
+            _authenticationProvider = authenticationProvider;
             _commandResult = new();
         }
         public async Task<CommandResult> Login(LoginArgs args)
@@ -29,28 +28,14 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("Email", "Invalid email or password");
                 _commandResult.AddError("Password", "Invalid email or password");
                 return _commandResult;
-            } 
-            // refactor for IoC
-            List<Claim> claims = new()
-            {
-                new Claim(ClaimTypes.Email, args.Email),
-                new Claim(ClaimTypes.NameIdentifier, $"{user.Id}")
-            };
-
-            ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            ClaimsPrincipal principal = new(identity);
-            var authProperties = new AuthenticationProperties()
-            {
-                IsPersistent = args.RememberMe
-            };
-
-            await _httpContext.SignInAsync(principal, authProperties);
+            }
+            await _authenticationProvider.LoginAsync(args, user.Id);
             return _commandResult;
         }
 
         public async Task Logout()
         {
-            await _httpContext.SignOutAsync();
+            await _authenticationProvider.LogoutAsync();
         }
 
         public async Task<CommandResult> Register(RegisterArgs args)
@@ -129,8 +114,8 @@ namespace TodoWeb.Data.Services
         }
         public async Task<User?> GetCurrentUser()
         {
-            string idString = _httpContext.User
-                .FindFirstValue(ClaimTypes.NameIdentifier) ?? "-1";
+            string idString = _authenticationProvider
+                .GetCurrentUserClaim(ClaimTypes.NameIdentifier) ?? "-1";
             int id = int.Parse(idString);
 
             return await _dbContext.Users.FindAsync(id);

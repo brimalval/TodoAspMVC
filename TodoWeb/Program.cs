@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TodoWeb.Data;
+using TodoWeb.Data.Providers;
 using TodoWeb.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,12 +15,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAuthenticationProvider, CookieAuthenticationProvider>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-    x => { 
-        x.LoginPath = "/Account/Login";
+    options => { 
+        options.LoginPath = "/Account/Login";
     });
 builder.Services.AddAuthorization(options =>
 {

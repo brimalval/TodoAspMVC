@@ -3,8 +3,6 @@ using System.Data;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace TodoWeb.Data.Services
 {
@@ -13,16 +11,13 @@ namespace TodoWeb.Data.Services
         private readonly IAccountService _accountService;
         private readonly CommandResult _commandResult;
         private readonly ApplicationDbContext _dbContext;
-        private readonly HttpContext _httpContext;
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
         public TodoService (ApplicationDbContext context, 
-            IHttpContextAccessor httpContextAccessor,
             IAccountService accountService)
         {
             _accountService = accountService;
             _commandResult = new CommandResult();
-            _httpContext = httpContextAccessor.HttpContext!;
             _dbContext = context;
         }
         public async Task<CommandResult> CreateAsync(CreateTodoArgs args)
@@ -39,7 +34,7 @@ namespace TodoWeb.Data.Services
                 args.Description = args.Description?.Trim();
                 if (ValidateTodo(args))
                 {
-                    if (await GetByTitleAsync(args.Title) != null)
+                    if (await GetByTitleAsync(args.Title.ToLower()) != null)
                     {
                         _commandResult.AddError("Title", "A task with this title already exists.");
                         return _commandResult;
@@ -48,7 +43,7 @@ namespace TodoWeb.Data.Services
                     {
                         Title = args.Title,
                         Description = args.Description,
-                        CreatedBy = user
+                        CreatedBy = user,
                     };
                     await _dbContext.Todos.AddAsync(todo);
                     await _dbContext.SaveChangesAsync();
