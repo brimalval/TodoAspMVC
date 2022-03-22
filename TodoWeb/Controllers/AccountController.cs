@@ -74,6 +74,11 @@ namespace TodoWeb.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         public IActionResult ShowErrors<T>(CommandResult commandResult, T args)
         {
             var errors = commandResult.Errors;

@@ -26,7 +26,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("IsAdmin", 
-        policy => policy.RequireClaim(ClaimTypes.Email, "admin@gmail.com"));
+        policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
 });
 
 var app = builder.Build();

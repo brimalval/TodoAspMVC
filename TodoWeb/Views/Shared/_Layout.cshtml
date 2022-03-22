@@ -15,7 +15,7 @@
                 <li>
                     <a class="text-lg block font-semibold" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                @if (User.Identity != null && User.FindFirstValue(ClaimTypes.Email) == "admin@gmail.com")
+                @if (User.Identity != null && User.HasClaim(ClaimTypes.Role, "Admin"))
                 {
                     <li>
                         <a asp-controller="Users" asp-action="Index">Users</a>

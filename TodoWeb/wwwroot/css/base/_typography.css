@@ -2,6 +2,10 @@ h1 {
   @apply text-5xl font-extrabold font-sans text-center mb-7;
 }
 
+h2 {
+  @apply text-xl font-semibold font-sans text-center mb-5;
+}
+
 .control-label, dt {
   @apply font-bold mb-2 block text-xl;
 }
