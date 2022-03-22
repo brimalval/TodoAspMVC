@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
 using TodoWeb.Data.Providers;
+using TodoWeb.Extensions;
 
 namespace TodoWeb.Data.Services
 {
@@ -49,11 +50,12 @@ namespace TodoWeb.Data.Services
 
             if (ValidatePassword(args.Password))
             {
-                string hashedPassword = HashString(args.Password);
+                (string hashedPassword, string salt) = HashString(args.Password);
                 User user = new()
                 {
                     Email = args.Email,
                     PasswordHash = hashedPassword,
+                    Salt = salt
                 };
                 try
                 {
@@ -69,23 +71,30 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public string HashString(string data)
+        public static (string, string) HashString(string data, int iterations = 1000)
         {
-            // MD5 is weak
-            // RFC2898, store the salt
-            byte[] stringBytes = ASCIIEncoding.ASCII.GetBytes(data);
-            byte[] hashedBytes = MD5.Create().ComputeHash(stringBytes);
-            StringBuilder stringHash = new();
-            foreach (var hashedByte in hashedBytes)
+            byte[] salt = new byte[8];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                stringHash.Append(hashedByte.ToString("x2"));
+                rng.GetBytes(salt);
             }
-            return stringHash.ToString();
-        }
 
+            return HashString(data, salt, iterations);
+        }
+        private static (string, string) HashString(string data, string salt, int iterations = 1000)
+        {
+            byte[] saltBytes = salt.ToByteArray();
+            return HashString(data, saltBytes, iterations);
+        }
+        private static (string, string) HashString(string data, byte[] salt, int iterations = 1000)
+        {
+            using var rfc2898 = new Rfc2898DeriveBytes(data, salt, iterations);
+            var hashedBytes = rfc2898.GetBytes(32);
+            return (hashedBytes.ToHexString(), salt.ToHexString());
+        }
         public bool VerifyPassword(User user, string password)
         {
-            return HashString(password) == user.PasswordHash;
+            return HashString(password, user.Salt).Item1 == user.PasswordHash;
         }
         public bool ValidatePassword(string password)
         {
