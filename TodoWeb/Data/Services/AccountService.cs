@@ -30,7 +30,8 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("Password", "Invalid email or password");
                 return _commandResult;
             }
-            await _authenticationProvider.LoginAsync(args, user.Id);
+            string[] roleStrings = user.Roles.Select(x => x.Name).ToArray();
+            await _authenticationProvider.LoginAsync(args, user.Id, roleStrings);
             return _commandResult;
         }
 
@@ -132,7 +133,9 @@ namespace TodoWeb.Data.Services
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == email);
+            return await _dbContext.Users
+                .Include(user => user.Roles)
+                .FirstOrDefaultAsync(user => user.Email == email);
         }
     }
 }

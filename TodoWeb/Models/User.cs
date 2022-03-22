@@ -11,5 +11,6 @@ namespace TodoWeb.Models
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Salt { get; set; }
+        public virtual ICollection<Role> Roles { get; set; }
     }
 }

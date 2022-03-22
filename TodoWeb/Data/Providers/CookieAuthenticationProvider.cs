@@ -18,13 +18,21 @@ namespace TodoWeb.Data.Providers
             return _httpContext.User.FindFirstValue(claimType);
         }
 
-        public async Task LoginAsync(LoginArgs args, int id)
+        public async Task LoginAsync(LoginArgs args, int id, string[]? roles)
         {
             List<Claim> claims = new()
             {
                 new Claim(ClaimTypes.Email, args.Email),
                 new Claim(ClaimTypes.NameIdentifier, $"{id}")
             };
+
+            if (roles != null && roles.Any())
+            {
+                foreach (string role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
 
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             ClaimsPrincipal principal = new(identity);
