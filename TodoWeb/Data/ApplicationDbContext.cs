@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoWeb.Models;
+using TodoWeb.Dtos;
 
 namespace TodoWeb.Data
 {
@@ -33,5 +34,7 @@ namespace TodoWeb.Data
                 .WithMany(tl => tl.CoauthorUsers)
                 .HasForeignKey(utl => utl.ListId);
         }
+        
+        public DbSet<TodoWeb.Dtos.CreateTodoListArgs> CreateTodoListArgs { get; set; }
     }
 }
