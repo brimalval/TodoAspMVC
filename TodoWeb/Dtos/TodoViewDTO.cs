@@ -2,7 +2,7 @@
 
 namespace TodoWeb.Dtos
 {
-    public class TodoViewDTO
+    public class TodoViewDTO : IDto
     {
         public int Id { get; set; }
         public string Title { get; set; }

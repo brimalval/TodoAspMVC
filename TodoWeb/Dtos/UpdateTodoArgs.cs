@@ -1,6 +1,6 @@
 ﻿namespace TodoWeb.Dtos
 {
-    public class UpdateTodoArgs
+    public class UpdateTodoArgs : IDto
     {
         public int Id { get; set; }
         public string Title { get; set; }

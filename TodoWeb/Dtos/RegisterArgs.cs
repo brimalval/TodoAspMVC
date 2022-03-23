@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TodoWeb.Dtos
 {
-    public class RegisterArgs
+    public class RegisterArgs : IDto
     {
         [Required]
         [DataType(DataType.EmailAddress)]

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TodoWeb.Dtos
 {
-    public class PasswordResetArgs
+    public class PasswordResetArgs : IDto
     {
         public int UserId { get; set; }
 
