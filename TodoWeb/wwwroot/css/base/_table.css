@@ -1,0 +1,15 @@
+thead {
+    @apply bg-slate-200 border-slate-300 border-b-2;
+}
+
+th, td {
+	@apply p-3 whitespace-nowrap text-center;
+}
+
+th {
+	@apply tracking-wider font-semibold;
+}
+
+tbody tr {
+	@apply odd:bg-slate-100 even:bg-slate-50;
+}

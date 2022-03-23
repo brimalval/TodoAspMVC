@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TodoWeb.Models.User>
+﻿@model IEnumerable<TodoWeb.Dtos.UserViewDTO>
 
 @{
     ViewData["Title"] = "Index";
@@ -6,29 +6,65 @@
 
 <h1>Index</h1>
 
-<section class="flex justify-center w-full">
-    <table class="table w-2/3">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Email)
-                </th>
-                <th class="w-48"></th>
-            </tr>
-        </thead>
-        <tbody>
-    @foreach (var item in Model) {
-            <tr>
-                <td class="text-center">
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-    }
-        </tbody>
-    </table>
+<section class="flex justify-center drop-shadow-lg rounded-md">
+    <div class="flex justify-start overflow-auto w-full">
+        <table class="flex-grow">
+            <thead>
+                <tr>
+                    <th class="w-24">
+                        @Html.DisplayNameFor(model => model.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Roles)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.PasswordHash)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Salt)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @foreach (var role in item.Roles)
+                            {
+                                <span class="first:ml-0 ml-3 bg-gray-300 tracking-wide font-sans font-semibold p-1 rounded-lg text-sm">
+                                    @role.Name
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <div class="flex justify-center">
+                                <div class="icon-container w-full" title="@item.PasswordHash">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex justify-center">
+                                <div class="icon-container w-full" title="@item.Salt">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-danger">
+                            <a asp-action="PasswordReset" asp-route-id="@item.Id">Reset Password</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </section>
