@@ -3,15 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TodoWeb.Dtos
 {
-    public class RegisterArgs
+    public class PasswordResetArgs
     {
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        [EmailAddress(ErrorMessage = "Please enter a valid email.")]
-        public string Email { get; set; }
+        public int UserId { get; set; }
 
-        [Required]
         [DataType(DataType.Password)]
+        [Required]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Please confirm your password.")]

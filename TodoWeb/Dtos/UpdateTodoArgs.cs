@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace TodoWeb.Dtos
+﻿namespace TodoWeb.Dtos
 {
-    [Keyless]
     public class UpdateTodoArgs
     {
         public int Id { get; set; }

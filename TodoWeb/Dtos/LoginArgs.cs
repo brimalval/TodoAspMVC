@@ -1,10 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace TodoWeb.Dtos
 {
-    [Keyless]
     public class LoginArgs
     {
         [Required]
