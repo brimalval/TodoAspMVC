@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoWeb.Models;
-using TodoWeb.Dtos;
 
 namespace TodoWeb.Data
 {

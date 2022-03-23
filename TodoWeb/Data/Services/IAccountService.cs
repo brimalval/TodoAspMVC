@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TodoWeb.Dtos;
+﻿using TodoWeb.Dtos;
 using TodoWeb.Models;
 
 namespace TodoWeb.Data.Services
