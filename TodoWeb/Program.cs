@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IAuthenticationProvider, CookieAuthenticationProvider>();
 
 builder.Services.AddHttpContextAccessor();

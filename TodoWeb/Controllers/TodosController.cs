@@ -9,7 +9,7 @@ using TodoWeb.Models;
 namespace TodoWeb.Controllers
 {
     [Authorize]
-    public class TodosController : Controller
+    public class TodosController : ControllerWithErrors
     {
         private readonly ITodoService _todoService;
         public TodosController(ITodoService todoService)
@@ -105,23 +105,11 @@ namespace TodoWeb.Controllers
 
             return commandResult.IsValid ?
                 RedirectToAction(nameof(Index)) : 
-                ShowErrors(
+                ShowErrors<UpdateTodoArgs>(
                     commandResult,
-                    todo
+                    args
                 );
         }
-
-        private IActionResult ShowErrors(CommandResult commandResult, object model)
-        {
-            var errors = commandResult.Errors;
-            foreach (var error in errors)
-            {
-                ModelState.AddModelError(error.Key, error.Value);
-            }
-
-            return View("Edit", model);
-        }
-
         // GET: Todos/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {

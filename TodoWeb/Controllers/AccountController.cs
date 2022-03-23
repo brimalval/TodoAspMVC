@@ -8,7 +8,7 @@ namespace TodoWeb.Controllers
 {
     // OnActionExecuting
     // ValidateInput 
-    public class AccountController : Controller
+    public class AccountController : ControllerWithErrors
     {
         private readonly IAccountService _accountService;
         public AccountController(IAccountService accountService)
@@ -77,16 +77,6 @@ namespace TodoWeb.Controllers
         public IActionResult AccessDenied()
         {
             return View();
-        }
-
-        public IActionResult ShowErrors<T>(CommandResult commandResult, T args)
-        {
-            var errors = commandResult.Errors;
-            foreach (var error in errors)
-            {
-                ModelState.AddModelError(error.Key, error.Value);
-            }
-            return View(args);
         }
     }
 }

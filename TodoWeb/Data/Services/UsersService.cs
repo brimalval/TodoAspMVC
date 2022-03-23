@@ -16,11 +16,14 @@ namespace TodoWeb.Data.Services
         }
         public async Task<IEnumerable<UserViewDTO>> GetAllAsync()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Include(u => u.Roles)
+                .ToListAsync();
             var usersDtos = users
                 .Select(x => new UserViewDTO
                 {
                     Email = x.Email,
+                    Id = x.Id,
                     PasswordHash = x.PasswordHash,
                     Roles = x.Roles,
                     Salt = x.Salt
