@@ -81,7 +81,13 @@ namespace TodoWeb.Controllers
             {
                 return NotFound();
             }
-            return View(todoList);
+            var args = new UpdateTodoListArgs
+            {
+                Id = todoList.Id,
+                Title = todoList.Title,
+                Description = todoList.Description,
+            };
+            return View(args);
         }
 
         // POST: TodoLists/Edit/5

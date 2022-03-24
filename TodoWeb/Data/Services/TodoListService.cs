@@ -110,18 +110,57 @@ namespace TodoWeb.Data.Services
                 .FirstOrDefaultAsync(list => list.Id == id);
             return todoList?.GetViewDto();
         }
-        public async Task<bool> HasDuplicateByTitleAsync(string title)
+        public async Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
         {
-            User? currentUser = await _accountService.GetCurrentUser();
+            var todoList = await _context.TodoLists
+                .Include(tl => tl.CreatedBy)
+                .FirstOrDefaultAsync(t => t.Id == args.Id);
+            if (todoList == null)
+            {
+                _commandResult.AddError("TodoLists", $"List with ID {args.Id} not found.");
+                return _commandResult;
+            } 
+            
+            args.Title = args.Title.Trim();
+            args.Description = args.Description?.Trim();
+
+            if (await HasDuplicateByTitleAsync(args.Title, todoList.CreatedBy))
+            {
+                _commandResult.AddError("Title", "A task with this title already exists.");
+                return _commandResult;
+            }                     
+            try
+            {
+                CreateTodoListArgs createArgs = new()
+                {
+                    Title = args.Title,
+                    Description = args.Description
+                };
+                if (ValidateCreateArgs(createArgs))
+                {
+                    todoList.Description = (args.Description ?? "").Trim();
+                    todoList.Title = args.Title.Trim();
+                    _context.TodoLists.Update(todoList);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch
+            {
+                _commandResult.AddError("Todos", "There was an error creating your task.");
+            }
+            return _commandResult;
+        }
+        public async Task<bool> HasDuplicateByTitleAsync(string title, User? creator = null)
+        {
+            if (creator == null)
+            {
+                creator = await _accountService.GetCurrentUser();
+            }
             return await _context.TodoLists
                 .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
-                .Where(list => list.CreatedBy == currentUser)
+                .Where(list => list.CreatedBy == creator)
                 .AnyAsync(list => list.Title == title);
-        }
-        public Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
-        {
-            throw new NotImplementedException();
         }
         public bool ValidateCreateArgs(CreateTodoListArgs args)
         {

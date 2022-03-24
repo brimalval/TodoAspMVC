@@ -133,7 +133,6 @@ namespace TodoWeb.Data.Services
                 return _commandResult;
             } 
             
-            User? user = await _accountService.GetCurrentUser();
             args.Title = args.Title.Trim();
             args.Description = args.Description?.Trim();
 
