@@ -34,7 +34,5 @@ namespace TodoWeb.Data
                 .WithMany(tl => tl.CoauthorUsers)
                 .HasForeignKey(utl => utl.ListId);
         }
-        
-        public DbSet<TodoWeb.Dtos.CreateTodoListArgs> CreateTodoListArgs { get; set; }
     }
 }

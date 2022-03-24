@@ -31,6 +31,12 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("User", "Please log in.");
                 return _commandResult;
             }
+            if (await HasDuplicateByTitleAsync(args.Title.Trim()))
+            {
+                _commandResult.AddError("Title", "You already have a list with this title.");
+                return _commandResult;
+            }
+
             TodoList todoList = new()
             {
                 CreatedBy = user,
@@ -42,9 +48,17 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public Task<CommandResult> DeleteAsync(int id)
+        public async Task<CommandResult> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            TodoList? todoList = await _context.TodoLists.FindAsync(id);
+            if (todoList != null)
+            {
+                _context.TodoLists.Remove(todoList);
+                await _context.SaveChangesAsync();
+                return _commandResult;
+            } 
+            _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
+            return _commandResult;
         }
 
         public async Task<IEnumerable<TodoListViewDto>> GetAllAsync()
@@ -69,7 +83,15 @@ namespace TodoWeb.Data.Services
                 .FirstOrDefaultAsync(list => list.Id == id);
             return todoList?.GetViewDto();
         }
-
+        public async Task<bool> HasDuplicateByTitleAsync(string title)
+        {
+            User? currentUser = await _accountService.GetCurrentUser();
+            return await _context.TodoLists
+                .Include(list => list.CreatedBy)
+                .Include(list => list.Todos)
+                .Where(list => list.CreatedBy == currentUser)
+                .AnyAsync(list => list.Title == title);
+        }
         public Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
         {
             throw new NotImplementedException();

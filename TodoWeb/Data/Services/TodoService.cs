@@ -35,7 +35,7 @@ namespace TodoWeb.Data.Services
                 args.Description = args.Description?.Trim();
                 if (ValidateCreateArgs(args))
                 {
-                    if (await GetByTitleAsync(args.Title.ToLower()) != null)
+                    if (await HasDuplicateByTitleAsync(args.ListId, args.Title))
                     {
                         _commandResult.AddError("Title", "A task with this title already exists.");
                         return _commandResult;
@@ -45,6 +45,7 @@ namespace TodoWeb.Data.Services
                         Title = args.Title,
                         Description = args.Description,
                         CreatedBy = user,
+                        TodoListId = args.ListId
                     };
                     await _dbContext.Todos.AddAsync(todo);
                     await _dbContext.SaveChangesAsync();
@@ -83,6 +84,7 @@ namespace TodoWeb.Data.Services
         {
             User? user = await _accountService.GetCurrentUser();
             Todo? todo = await _dbContext.Todos
+                .Include(t => t.TodoList)
                 .Where(t => t.CreatedBy == user)
                 .FirstOrDefaultAsync(t => t.Id == id);
             if (todo == null)
@@ -122,7 +124,9 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> UpdateAsync(UpdateTodoArgs args)
         {
-            var todo = await _dbContext.Todos.FindAsync(args.Id);
+            var todo = await _dbContext.Todos
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todo == null)
             {
                 _commandResult.AddError("Todos", $"Task with ID {args.Id} not found.");
@@ -133,9 +137,7 @@ namespace TodoWeb.Data.Services
             args.Title = args.Title.Trim();
             args.Description = args.Description?.Trim();
 
-            bool duplicateExists = await _dbContext.Todos
-                .AnyAsync(t => t.Id != args.Id && t.Title == args.Title && t.CreatedBy == user);
-            if (duplicateExists)
+            if (await HasDuplicateByTitleAsync(todo.TodoListId, args.Title, todo.Id))
             {
                 _commandResult.AddError("Title", "A task with this title already exists.");
                 return _commandResult;
@@ -180,11 +182,16 @@ namespace TodoWeb.Data.Services
             }
             return _commandResult.IsValid;
         }
-        public async Task<Todo?> GetByTitleAsync(string title) 
+        public async Task<bool> HasDuplicateByTitleAsync(int listId, string title, int todoId = -1)
         {
             User? user = await _accountService.GetCurrentUser();
-            return await _dbContext.Todos
-                .FirstOrDefaultAsync(todo => todo.Title == title && todo.CreatedBy == user);
+
+            TodoList? todoList = await _dbContext.TodoLists
+                .Include(list => list.Todos)
+                .FirstOrDefaultAsync(list => list.Id == listId);
+
+            return todoList?.Todos
+                .Any(todo => todo.Title.ToLower() == title.ToLower() && todo.Id != todoId) ?? false;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace TodoWeb.Extensions
             Description = todo.Description,
             Done = todo.Done,
             CreatedDateTime = todo.CreatedDateTime,
+            TodoList = todo.TodoList,
             CreatedBy = todo.CreatedBy,
         };
         public static TodoListViewDto GetViewDto(this TodoList todoList) => new()

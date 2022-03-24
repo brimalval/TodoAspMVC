@@ -15,6 +15,7 @@ namespace TodoWeb.Models
         public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
         public int? CreatedById { get; set; }
         public virtual User? CreatedBy { get; set; }
+        public int TodoListId { get; set; }
         public virtual TodoList TodoList { get; set; }
     }
 }
