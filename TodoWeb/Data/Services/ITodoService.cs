@@ -2,14 +2,9 @@
 
 namespace TodoWeb.Data.Services
 {
-    public interface ITodoService
+    public interface ITodoService : 
+        ICrudService<TodoViewDto, CreateTodoArgs, UpdateTodoArgs>
     {
-        bool ValidateTodo(CreateTodoArgs args);
-        Task<IEnumerable<TodoViewDto>> GetAllAsync();
-        Task<TodoViewDto?> GetByIdAsync(int id);
-        Task<CommandResult> CreateAsync(CreateTodoArgs args);
-        Task<CommandResult> UpdateAsync(UpdateTodoArgs args);
-        Task<CommandResult> DeleteAsync(int id);
         Task<CommandResult> ToggleStatus(IEnumerable<int> ids);
     }
 }

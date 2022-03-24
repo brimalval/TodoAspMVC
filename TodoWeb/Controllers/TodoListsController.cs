@@ -13,20 +13,17 @@ namespace TodoWeb.Controllers
     [Authorize]
     public class TodoListsController : ControllerWithErrors
     {
-        private readonly ApplicationDbContext _context;
         private readonly ITodoListService _todoListService;
 
-        public TodoListsController(ApplicationDbContext context, ITodoListService todoListService)
+        public TodoListsController(ITodoListService todoListService)
         {
-            _context = context;
             _todoListService = todoListService;
         }
 
         // GET: TodoLists
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.TodoLists.Include(t => t.CreatedBy);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _todoListService.GetAllAsync());
         }
 
         // GET: TodoLists/Details/5
@@ -37,9 +34,7 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todoList = await _context.TodoLists
-                .Include(t => t.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var todoList = await _todoListService.GetByIdAsync(id ?? -1);
             if (todoList == null)
             {
                 return NotFound();
@@ -51,7 +46,6 @@ namespace TodoWeb.Controllers
         // GET: TodoLists/Create
         public IActionResult Create()
         {
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -76,12 +70,11 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todoList = await _context.TodoLists.FindAsync(id);
+            var todoList = await _todoListService.GetByIdAsync(id ?? -1);
             if (todoList == null)
             {
                 return NotFound();
             }
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id", todoList.CreatedById);
             return View(todoList);
         }
 
@@ -90,9 +83,9 @@ namespace TodoWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,CreatedById")] TodoList todoList)
+        public async Task<IActionResult> Edit(int id, UpdateTodoListArgs args)
         {
-            if (id != todoList.Id)
+            if (id != args.Id)
             {
                 return NotFound();
             }
@@ -101,24 +94,23 @@ namespace TodoWeb.Controllers
             {
                 try
                 {
-                    _context.Update(todoList);
-                    await _context.SaveChangesAsync();
+                    await _todoListService.UpdateAsync(args);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TodoListExists(todoList.Id))
+                    var todoList = await _todoListService.GetByIdAsync(args.Id);
+                    if (todoList != null)
                     {
-                        return NotFound();
+                        throw;
                     }
                     else
                     {
-                        throw;
+                        return NotFound();
                     }
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CreatedById"] = new SelectList(_context.Users, "Id", "Id", todoList.CreatedById);
-            return View(todoList);
+            return View(args);
         }
 
         // GET: TodoLists/Delete/5
@@ -129,9 +121,7 @@ namespace TodoWeb.Controllers
                 return NotFound();
             }
 
-            var todoList = await _context.TodoLists
-                .Include(t => t.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var todoList = await _todoListService.GetByIdAsync(id ?? -1);
             if (todoList == null)
             {
                 return NotFound();
@@ -145,15 +135,8 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var todoList = await _context.TodoLists.FindAsync(id);
-            _context.TodoLists.Remove(todoList);
-            await _context.SaveChangesAsync();
+            await _todoListService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool TodoListExists(int id)
-        {
-            return _context.TodoLists.Any(e => e.Id == id);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TodoWeb.Dtos
 {
-    public class CreateTodoArgs : IDto
+    public class CreateTodoArgs : IArgsDto
     {
         public string Title { get; set; }
         public string? Description { get; set; } = "";

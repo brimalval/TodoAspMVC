@@ -33,7 +33,7 @@ namespace TodoWeb.Data.Services
             {
                 args.Title = args.Title.Trim();
                 args.Description = args.Description?.Trim();
-                if (ValidateTodo(args))
+                if (ValidateCreateArgs(args))
                 {
                     if (await GetByTitleAsync(args.Title.ToLower()) != null)
                     {
@@ -147,7 +147,7 @@ namespace TodoWeb.Data.Services
                     Title = args.Title,
                     Description = args.Description
                 };
-                if (ValidateTodo(createArgs))
+                if (ValidateCreateArgs(createArgs))
                 {
                     todo.Description = (args.Description ?? "").Trim();
                     todo.Title = args.Title.Trim();
@@ -162,8 +162,7 @@ namespace TodoWeb.Data.Services
             }
             return _commandResult;
         }
-
-        public bool ValidateTodo(CreateTodoArgs args)
+        public bool ValidateCreateArgs(CreateTodoArgs args)
         {
             string title = args.Title;
             if (title.Trim().Length >=  titleCharLimit)
@@ -181,13 +180,11 @@ namespace TodoWeb.Data.Services
             }
             return _commandResult.IsValid;
         }
-
         public async Task<Todo?> GetByTitleAsync(string title) 
         {
             User? user = await _accountService.GetCurrentUser();
             return await _dbContext.Todos
                 .FirstOrDefaultAsync(todo => todo.Title == title && todo.CreatedBy == user);
         }
-
     }
 }

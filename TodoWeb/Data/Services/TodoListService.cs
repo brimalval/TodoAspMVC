@@ -21,7 +21,7 @@ namespace TodoWeb.Data.Services
         }
         public async Task<CommandResult> CreateAsync(CreateTodoListArgs args)
         {
-            if (!ValidateTodoList(args))
+            if (!ValidateCreateArgs(args))
             {
                 return _commandResult;
             }
@@ -40,6 +40,11 @@ namespace TodoWeb.Data.Services
             await _context.TodoLists.AddAsync(todoList);
             await _context.SaveChangesAsync();
             return _commandResult;
+        }
+
+        public Task<CommandResult> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<TodoListViewDto>> GetAllAsync()
@@ -64,7 +69,12 @@ namespace TodoWeb.Data.Services
                 .FirstOrDefaultAsync(list => list.Id == id);
             return todoList?.GetViewDto();
         }
-        private bool ValidateTodoList(CreateTodoListArgs args)
+
+        public Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
+        {
+            throw new NotImplementedException();
+        }
+        public bool ValidateCreateArgs(CreateTodoListArgs args)
         {
             string title = args.Title;
             if (title.Trim().Length >=  titleCharLimit)
