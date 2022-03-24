@@ -14,16 +14,22 @@ namespace TodoWeb.Controllers
     public class TodoListsController : ControllerWithErrors
     {
         private readonly ITodoListService _todoListService;
+        private readonly IAccountService _accountService;
 
-        public TodoListsController(ITodoListService todoListService)
+        public TodoListsController(ITodoListService todoListService, IAccountService accountService)
         {
             _todoListService = todoListService;
+            _accountService = accountService;
         }
 
         // GET: TodoLists
         public async Task<IActionResult> Index()
         {
-            return View(await _todoListService.GetAllAsync());
+            var userTodoLists = (
+                await _todoListService.GetAllAsync(),
+                await _todoListService.GetUserCoauthoredLists()
+            );
+            return View(userTodoLists);
         }
 
         // GET: TodoLists/Details/5

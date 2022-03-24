@@ -7,6 +7,19 @@
 
 <section aria-label="Task deletion section">
     <h1>Delete Task</h1>
+
+    @if (Model.CreatedBy != null) {
+        <h2>Task by @Model.CreatedBy.Email</h2>
+    } else
+    {
+        <h2>Task by 
+            <span class="text-gray-300 font-semibold">
+                [Deleted User]
+            </span>
+        </h2>
+    }
+    <h2>Part of the list "@Model.TodoList.Title"</h2>
+
     <partial name="_IndexNav" />
     <h3 class="text-lg mb-6">Are you sure you want to delete this task?</h3>
     <dl>

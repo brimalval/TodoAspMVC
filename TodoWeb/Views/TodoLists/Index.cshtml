@@ -1,7 +1,8 @@
-﻿@model IEnumerable<TodoWeb.Dtos.TodoListViewDto>
+﻿@model (IEnumerable<TodoListViewDto>, IEnumerable<TodoListViewDto>)
 
 @{
     ViewData["Title"] = "Index";
+    var todoListProperties = Model.Item1.FirstOrDefault();
 }
 
 <h1>Your Lists</h1>
@@ -24,28 +25,22 @@
             <thead>
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.Title)
+                        @Html.DisplayNameFor(model => todoListProperties.Title)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Description)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.CreatedBy)
+                        @Html.DisplayNameFor(model => todoListProperties.Description)
                     </th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-        @foreach (var item in Model) {
+        @foreach (var item in Model.Item1) {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Title)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CreatedBy.Email)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -61,25 +56,25 @@
 <hr class="my-8" />
 <h1>Other Lists</h1>
 
-<section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Your todo lists section">
+<section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Other todo lists section">
     <div class="flex justify-center overflow-auto w-full">
         <table class="table">
             <thead>
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.Title)
+                        @Html.DisplayNameFor(model => todoListProperties.Title)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Description)
+                        @Html.DisplayNameFor(model => todoListProperties.Description)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.CreatedBy)
+                        @Html.DisplayNameFor(model => todoListProperties.CreatedBy)
                     </th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-        @foreach (var item in Model) {
+        @foreach (var item in Model.Item2) {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Title)

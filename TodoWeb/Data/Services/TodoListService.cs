@@ -9,15 +9,19 @@ namespace TodoWeb.Data.Services
     public class TodoListService : ITodoListService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ITodoService _todoService;
         private readonly CommandResult _commandResult;
         private readonly IAccountService _accountService;
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
-        public TodoListService(ApplicationDbContext context, IAccountService accountService)
+        public TodoListService(ApplicationDbContext context,
+            IAccountService accountService, 
+            ITodoService todoService)
         {
             _context = context;
             _commandResult = new();
             _accountService = accountService;
+            _todoService = todoService;
         }
         public async Task<CommandResult> CreateAsync(CreateTodoListArgs args)
         {
@@ -50,9 +54,16 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> DeleteAsync(int id)
         {
-            TodoList? todoList = await _context.TodoLists.FindAsync(id);
+            TodoList? todoList = await _context.TodoLists
+                .Include(tl => tl.Todos)
+                .Include(tl => tl.CoauthorUsers)
+                .FirstOrDefaultAsync(tl => tl.Id == id);
             if (todoList != null)
             {
+                foreach (var coauthorship in todoList.CoauthorUsers)
+                {
+                    _context.TodoListCoauthorships.Remove(coauthorship);
+                }
                 _context.TodoLists.Remove(todoList);
                 await _context.SaveChangesAsync();
                 return _commandResult;
@@ -67,19 +78,35 @@ namespace TodoWeb.Data.Services
             var todoLists = await _context.TodoLists
                 .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
+                .Include(list => list.CoauthorUsers)
                 .Where(list => list.CreatedBy == currentUser)
                 .ToListAsync();
 
             return todoLists.Select(tl => tl.GetViewDto());
         }
 
+        public async Task<IEnumerable<TodoListViewDto>> GetUserCoauthoredLists()
+        {
+            User? user = await _accountService.GetCurrentUser();
+            if (user == null)
+            {
+                return new List<TodoListViewDto>();
+            }
+            return user.CoauthoredLists
+                .Where(coauthorship => coauthorship.ListId != null)
+                .Select(coauthorship => {
+                    return _context.TodoLists
+                    .Include(tl => tl.CreatedBy)
+                    .First(tl => tl.Id == coauthorship.ListId)
+                    .GetViewDto();
+                });
+        }
+
         public async Task<TodoListViewDto?> GetByIdAsync(int id)
         {
-            User? currentUser = await _accountService.GetCurrentUser();
             var todoList = await _context.TodoLists
                 .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
-                .Where(list => list.CreatedBy == currentUser)
                 .FirstOrDefaultAsync(list => list.Id == id);
             return todoList?.GetViewDto();
         }

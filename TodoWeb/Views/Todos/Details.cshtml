@@ -2,10 +2,22 @@
 
 @{
     ViewData["Title"] = "Details";
+    ViewData["Index"] = $"/TodoLists/Details/{Model.TodoList.Id}";
 }
 
 <section aria-label="View task details section">
     <h1>Task Details</h1>
+    @if (Model.CreatedBy != null) {
+        <h2>Task by @Model.CreatedBy.Email</h2>
+    } else
+    {
+        <h2>Task by 
+            <span class="text-gray-300 font-semibold">
+                [Deleted User]
+            </span>
+        </h2>
+    }
+    <h2>Part of the list "@Model.TodoList.Title"</h2>
     <partial name="_IndexNav" />
     <dl>
         <dt>

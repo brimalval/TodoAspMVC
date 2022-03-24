@@ -82,10 +82,10 @@ namespace TodoWeb.Data.Services
 
         public async Task<TodoViewDto?> GetByIdAsync(int id)
         {
-            User? user = await _accountService.GetCurrentUser();
             Todo? todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Where(t => t.CreatedBy == user)
+                .Include(t => t.CreatedBy)
+                .Include(t => t.TodoList)
                 .FirstOrDefaultAsync(t => t.Id == id);
             if (todo == null)
             {

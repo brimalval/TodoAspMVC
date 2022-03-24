@@ -1,4 +1,5 @@
-﻿using TodoWeb.Models;
+﻿using System.ComponentModel;
+using TodoWeb.Models;
 
 namespace TodoWeb.Dtos
 {
@@ -6,6 +7,7 @@ namespace TodoWeb.Dtos
     {
         public int Id { get; set; }
         public string Email { get; set; }
+        [DisplayName("Password Hash")]
         public string PasswordHash { get; set; }
         public string Salt { get; set; }
         public ICollection<Role> Roles { get; set; }

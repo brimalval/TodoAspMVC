@@ -74,14 +74,18 @@ namespace TodoWeb.Data.Services
                 .GetCurrentUserClaim(ClaimTypes.NameIdentifier) ?? "-1";
             int id = int.Parse(idString);
 
-            return await _dbContext.Users.FindAsync(id);
+            return await _dbContext.Users
+                .Include(user => user.CoauthoredLists)
+                .FirstOrDefaultAsync(user => user.Id == id);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _dbContext.Users
+            User? user = await _dbContext.Users
                 .Include(user => user.Roles)
+                .Include(user => user.CoauthoredLists)
                 .FirstOrDefaultAsync(user => user.Email == email);
+            return user;
         }
     }
 }
