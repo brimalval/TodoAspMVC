@@ -1,9 +1,13 @@
 h1 {
-  @apply text-5xl font-extrabold font-sans text-center mb-7;
+  @apply text-5xl font-extrabold text-center mb-7;
 }
 
 h2 {
-  @apply text-xl font-semibold font-sans text-center mb-5;
+  @apply text-xl font-semibold text-center mb-5;
+}
+
+h6 {
+  @apply text-center mb-5;
 }
 
 .control-label, dt {

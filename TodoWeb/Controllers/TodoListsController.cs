@@ -150,5 +150,40 @@ namespace TodoWeb.Controllers
             await _todoListService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> ManagePermissions(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            TodoListViewDto todoList = await _todoListService.GetByIdAsync(id ?? -1);
+            var nonCoauthors = await _todoListService.GetNonCoauthors(id ?? -1);
+
+            return View((todoList, nonCoauthors));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPermission(int id, int coauthorId)
+        {
+            var commandResult = await _todoListService.AddPermission(id, coauthorId);
+            if (!commandResult.IsValid)
+            {
+                LoadErrors(commandResult);
+            }
+            return RedirectToAction(nameof(ManagePermissions), new { id });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemovePermission(int id, int coauthorId)
+        {
+            var commandResult = await _todoListService.RemovePermission(id, coauthorId);
+            if (!commandResult.IsValid)
+            {
+                LoadErrors(commandResult);
+            }
+            return RedirectToAction(nameof(ManagePermissions), new { id });
+        }
     }
 }

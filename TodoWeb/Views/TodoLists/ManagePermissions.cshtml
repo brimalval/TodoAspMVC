@@ -1,0 +1,69 @@
+﻿@model (TodoListViewDto, IEnumerable<UserViewDto>)
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<section>
+    <h1>@Model.Item1.Title</h1>
+    <h2>Manage Permissions</h2>
+    <h6>Set who can read/write this list.</h6>
+
+    <partial name="_IndexNav" />
+
+    <section>
+        @if (Model.Item1.CoauthorUsers.Any())
+        {
+        <div class="flex justify-start overflow-auto w-full">
+            <table class="flex-grow">
+                <thead>
+                    <tr>
+                        <th class="w-24">
+                            Email
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Item1.CoauthorUsers)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.User.Email)
+                            </td>
+                            <td class="text-danger">
+                                <form asp-action="RemovePermission">
+                                    <input type="hidden" name="id" value="@Model.Item1.Id" />
+                                    <input type="hidden" name="coauthorId" value="@item.UserId" />
+                                    <input type="submit" value="Remove Permission" class="text-danger"
+                                    aria-label="Remove permission from selected user"/>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        }else
+        {
+            <h2>No co-auhors yet.</h2>
+        }    
+    </section>
+
+    <hr class="my-5"/>
+    <div class="col-container mt-6">
+        <form asp-action="AddPermission" class="flex flex-col space-y-2 items-center justify-center">
+            <input type="hidden" name="id" value="@Model.Item1.Id" />
+            <select name="coauthorId" class="form-control">
+                @foreach(var user in Model.Item2)
+                {
+                    <option value="@user.Id">
+                        @user.Email
+                    </option>
+                }
+            </select>
+            <input type="submit" value="Add" class="btn btn-primary" aria-label="Give permission to user selected"/>
+        </form>
+    </div>
+</section>

@@ -46,7 +46,8 @@
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="ManagePermissions" asp-route-id="@item.Id">Manage Permissions</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">View Tasks</a> |
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     </td>
                 </tr>
@@ -63,8 +64,8 @@
 @if (Model.Item2.Any())
 {
     <hr class="my-8" />
+    <h1>Other Lists</h1>
     <section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Other todo lists section">
-        <h1>Other Lists</h1>
         <div class="flex justify-center overflow-auto w-full">
             <table class="table">
                 <thead>

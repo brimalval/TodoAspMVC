@@ -15,5 +15,22 @@ namespace TodoWeb.Controllers
             }
             return View(args);
         }
+        public IActionResult ShowErrors(CommandResult commandResult, string viewName)
+        {
+            var errors = commandResult.Errors;
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(error.Key, error.Value);
+            }
+            return View(viewName);
+        }
+        public void LoadErrors(CommandResult commandResult)
+        {
+            var errors = commandResult.Errors;
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(error.Key, error.Value);
+            }
+        }
     }
 }

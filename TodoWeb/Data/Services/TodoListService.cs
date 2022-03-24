@@ -107,6 +107,8 @@ namespace TodoWeb.Data.Services
             var todoList = await _context.TodoLists
                 .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
+                .Include(list => list.CoauthorUsers)
+                .Include("CoauthorUsers.User")
                 .FirstOrDefaultAsync(list => list.Id == id);
             return todoList?.GetViewDto();
         }
@@ -179,6 +181,72 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("Description", "The given description is too long.");
             }
             return _commandResult.IsValid;
+        }
+
+        public async Task<IEnumerable<UserViewDto>> GetNonCoauthors(int id)
+        {
+            TodoList? todoList = await _context.TodoLists
+                .Include(tl => tl.CoauthorUsers)
+                .FirstOrDefaultAsync(tl => tl.Id == id);
+
+            if (todoList == null)
+            {
+                return new List<UserViewDto>();
+            }
+
+            var coauthorIds = todoList.CoauthorUsers
+                .Select(coauthor => coauthor.UserId);
+
+            User? currentUser = await _accountService.GetCurrentUser();
+            if (currentUser != null)
+            {
+                coauthorIds = coauthorIds.Append(currentUser.Id);
+            }
+
+            var nonCoauthors = await _context.Users
+                .Where(user => !coauthorIds.Contains(user.Id))
+                .Select(user => user.GetViewDto())
+                .ToListAsync();
+
+            return nonCoauthors;
+        }
+
+        public async Task<CommandResult> AddPermission(int id, int coauthorId)
+        {
+            TodoList? todoList = await _context.TodoLists.FindAsync(id);
+            if (todoList == null)
+            {
+                _commandResult.AddError("TodoLists", $"Todo list {id} was not found.");
+                return _commandResult;
+            }
+            User? coauthor = await _context.Users.FindAsync(coauthorId);
+            if (coauthor == null)
+            {
+                _commandResult.AddError("Users", $"User {coauthorId} was not found.");
+                return _commandResult;
+            }
+
+            await _context.TodoListCoauthorships.AddAsync(new()
+            {
+                ListId = id,
+                UserId = coauthorId
+            });
+            await _context.SaveChangesAsync();
+            return _commandResult;
+        }
+
+        public async Task<CommandResult> RemovePermission(int id, int coauthorId)
+        {
+            var coauthorship = await _context.TodoListCoauthorships
+                .FirstOrDefaultAsync(c => c.UserId == coauthorId && c.ListId == id);
+            if (coauthorship == null)
+            {
+                _commandResult.AddError("TodoListPermissions", $"Permission for user {coauthorId} on list {id} not found.");
+                return _commandResult;
+            }
+            _context.TodoListCoauthorships.Remove(coauthorship);
+            await _context.SaveChangesAsync();
+            return _commandResult;
         }
     }
 }

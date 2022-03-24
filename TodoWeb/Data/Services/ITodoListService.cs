@@ -6,5 +6,8 @@ namespace TodoWeb.Data.Services
         ICrudService<TodoListViewDto, CreateTodoListArgs, UpdateTodoListArgs>
     {
         Task<IEnumerable<TodoListViewDto>> GetUserCoauthoredLists();
+        Task<IEnumerable<UserViewDto>> GetNonCoauthors(int id);
+        Task<CommandResult> AddPermission(int id, int coauthorId);
+        Task<CommandResult> RemovePermission(int id, int coauthorId);
     }
 }
