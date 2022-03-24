@@ -4,7 +4,7 @@ namespace TodoWeb.Data.Services
 {
     public interface IUsersService
     {
-        public Task<IEnumerable<UserViewDTO>> GetAllAsync();
+        public Task<IEnumerable<UserViewDto>> GetAllAsync();
         public Task<CommandResult> PasswordReset(PasswordResetArgs args); 
     }
 }

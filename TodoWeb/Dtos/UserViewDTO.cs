@@ -2,7 +2,7 @@
 
 namespace TodoWeb.Dtos
 {
-    public class UserViewDTO
+    public class UserViewDto
     {
         public int Id { get; set; }
         public string Email { get; set; }

@@ -2,7 +2,7 @@
 
 namespace TodoWeb.Dtos
 {
-    public class TodoViewDTO : IDto
+    public class TodoViewDto : IDto
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -10,6 +10,6 @@ namespace TodoWeb.Dtos
         public bool Done { get; set; }
         public DateTime CreatedDateTime { get; set; }
         public int CreatedById { get; set; }
-        public virtual User CreatedBy { get; set; }
+        public virtual User? CreatedBy { get; set; }
     }
 }
