@@ -21,6 +21,8 @@
 
 <section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Your todo lists section">
     <div class="flex justify-center overflow-auto w-full">
+        @if (Model.Item1.Any())
+        {
         <table class="table">
             <thead>
                 <tr>
@@ -34,7 +36,7 @@
                 </tr>
             </thead>
             <tbody>
-        @foreach (var item in Model.Item1) {
+            @foreach (var item in Model.Item1) {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Title)
@@ -48,51 +50,58 @@
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     </td>
                 </tr>
-        }
+            }
             </tbody>
-        </table>
+            </table>
+        } else
+        {
+            <h2>No lists created yet</h2>
+        }
     </div>
 </section>
-<hr class="my-8" />
-<h1>Other Lists</h1>
 
-<section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Other todo lists section">
-    <div class="flex justify-center overflow-auto w-full">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => todoListProperties.Title)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => todoListProperties.Description)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => todoListProperties.CreatedBy)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-        @foreach (var item in Model.Item2) {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CreatedBy.Email)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-        }
-            </tbody>
-        </table>
-    </div>
-</section>
+@if (Model.Item2.Any())
+{
+    <hr class="my-8" />
+    <section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Other todo lists section">
+        <h1>Other Lists</h1>
+        <div class="flex justify-center overflow-auto w-full">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => todoListProperties.Title)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => todoListProperties.Description)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => todoListProperties.CreatedBy)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Item2) {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CreatedBy.Email)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">View Tasks</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
