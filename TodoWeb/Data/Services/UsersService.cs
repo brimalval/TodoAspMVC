@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoWeb.Dtos;
+using TodoWeb.Extensions;
 using TodoWeb.Models;
 using static TodoWeb.Utilities.PasswordUtilities;
 
@@ -14,21 +15,13 @@ namespace TodoWeb.Data.Services
             _context = context;
             _commandResult = new();
         }
-        public async Task<IEnumerable<UserViewDTO>> GetAllAsync()
+        public async Task<IEnumerable<UserViewDto>> GetAllAsync()
         {
             var users = await _context.Users
                 .Include(u => u.Roles)
                 .ToListAsync();
-            var usersDtos = users
-                .Select(x => new UserViewDTO
-                {
-                    Email = x.Email,
-                    Id = x.Id,
-                    PasswordHash = x.PasswordHash,
-                    Roles = x.Roles,
-                    Salt = x.Salt
-                });
-            return usersDtos;
+            return users
+                .Select(x => x.GetViewDto());
         }
 
         public async Task<CommandResult> PasswordReset(PasswordResetArgs args)

@@ -3,6 +3,7 @@ using System.Data;
 using TodoWeb.Dtos;
 using TodoWeb.Models;
 using Microsoft.EntityFrameworkCore;
+using TodoWeb.Extensions;
 
 namespace TodoWeb.Data.Services
 {
@@ -68,22 +69,17 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
-        public async Task<IEnumerable<TodoViewDTO>> GetAllAsync()
+        public async Task<IEnumerable<TodoViewDto>> GetAllAsync()
         {
             User? currentUser = await _accountService.GetCurrentUser();
-            List<TodoViewDTO> viewDTOs = new();
-            (await _dbContext.Todos
+            var todos = await _dbContext.Todos
                 .Where(todo => todo.CreatedBy == currentUser)
-                .ToListAsync())
-                .ForEach(todo =>
-                {
-                    viewDTOs.Add(ToViewDTO(todo));
-                });
+                .ToListAsync();
 
-            return viewDTOs;
+            return todos.Select(todo => todo.GetViewDto());
         }
 
-        public async Task<TodoViewDTO?> GetByIdAsync(int id)
+        public async Task<TodoViewDto?> GetByIdAsync(int id)
         {
             User? user = await _accountService.GetCurrentUser();
             Todo? todo = await _dbContext.Todos
@@ -93,7 +89,7 @@ namespace TodoWeb.Data.Services
             {
                 return null;
             }
-            return ToViewDTO(todo);
+            return todo.GetViewDto();
         }
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
@@ -193,17 +189,5 @@ namespace TodoWeb.Data.Services
                 .FirstOrDefaultAsync(todo => todo.Title == title && todo.CreatedBy == user);
         }
 
-        public TodoViewDTO ToViewDTO(Todo todo)
-        {
-            return new TodoViewDTO
-            {
-                Id = todo.Id,
-                Title = todo.Title,
-                Description = todo.Description,
-                Done = todo.Done,
-                CreatedDateTime = todo.CreatedDateTime,
-                CreatedBy = todo.CreatedBy,
-            };
-        }
     }
 }

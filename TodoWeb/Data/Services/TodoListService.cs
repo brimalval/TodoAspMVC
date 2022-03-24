@@ -1,5 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using TodoWeb.Dtos;
+using TodoWeb.Extensions;
 using TodoWeb.Models;
 
 namespace TodoWeb.Data.Services
@@ -40,6 +42,28 @@ namespace TodoWeb.Data.Services
             return _commandResult;
         }
 
+        public async Task<IEnumerable<TodoListViewDto>> GetAllAsync()
+        {
+            User? currentUser = await _accountService.GetCurrentUser();
+            var todoLists = await _context.TodoLists
+                .Include(list => list.CreatedBy)
+                .Include(list => list.Todos)
+                .Where(list => list.CreatedBy == currentUser)
+                .ToListAsync();
+
+            return todoLists.Select(tl => tl.GetViewDto());
+        }
+
+        public async Task<TodoListViewDto?> GetByIdAsync(int id)
+        {
+            User? currentUser = await _accountService.GetCurrentUser();
+            var todoList = await _context.TodoLists
+                .Include(list => list.CreatedBy)
+                .Include(list => list.Todos)
+                .Where(list => list.CreatedBy == currentUser)
+                .FirstOrDefaultAsync(list => list.Id == id);
+            return todoList?.GetViewDto();
+        }
         private bool ValidateTodoList(CreateTodoListArgs args)
         {
             string title = args.Title;
