@@ -58,6 +58,13 @@ namespace TodoWeb.Data.Services
                 .Include(tl => tl.Todos)
                 .Include(tl => tl.CoauthorUsers)
                 .FirstOrDefaultAsync(tl => tl.Id == id);
+
+            if (!await HasPermissionAsync(todoList))
+            {
+                _commandResult.AddError("User", "User does not have permission to delete this list.");
+                return _commandResult;
+            }
+
             if (todoList != null)
             {
                 foreach (var coauthorship in todoList.CoauthorUsers)
@@ -110,11 +117,34 @@ namespace TodoWeb.Data.Services
                 .Include(list => list.CoauthorUsers)
                 .Include("CoauthorUsers.User")
                 .FirstOrDefaultAsync(list => list.Id == id);
-            return todoList?.GetViewDto();
+
+            return await HasPermissionAsync(todoList) 
+                ? (todoList?.GetViewDto())
+                : null;
+        }
+        public async Task<bool> HasPermissionAsync(TodoList? todoList)
+        {
+            User? currentUser = await _accountService.GetCurrentUser();
+            if (todoList == null)
+            {
+                return false;
+            }
+            if (currentUser != null && 
+                currentUser.Roles.Any(role => role.Name == "Admin"))
+            {
+                return true;
+            }
+
+            bool isCoauthor = todoList.CoauthorUsers
+                .Any(c => c.UserId == currentUser?.Id);
+            bool isAuthor = todoList.CreatedBy.Id == currentUser?.Id;
+
+            return isAuthor || isCoauthor;
         }
         public async Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
         {
             var todoList = await _context.TodoLists
+                .Include(tl => tl.CoauthorUsers)
                 .Include(tl => tl.CreatedBy)
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todoList == null)
@@ -122,6 +152,12 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("TodoLists", $"List with ID {args.Id} not found.");
                 return _commandResult;
             } 
+
+            if (!await HasPermissionAsync(todoList))
+            {
+                _commandResult.AddError("User", "User does not have permission to update this list.");
+                return _commandResult;
+            }
             
             args.Title = args.Title.Trim();
             args.Description = args.Description?.Trim();

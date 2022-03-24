@@ -14,12 +14,10 @@ namespace TodoWeb.Controllers
     public class TodoListsController : ControllerWithErrors
     {
         private readonly ITodoListService _todoListService;
-        private readonly IAccountService _accountService;
 
-        public TodoListsController(ITodoListService todoListService, IAccountService accountService)
+        public TodoListsController(ITodoListService todoListService)
         {
             _todoListService = todoListService;
-            _accountService = accountService;
         }
 
         // GET: TodoLists

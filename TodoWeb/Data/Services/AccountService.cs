@@ -76,6 +76,7 @@ namespace TodoWeb.Data.Services
 
             return await _dbContext.Users
                 .Include(user => user.CoauthoredLists)
+                .Include(user => user.Roles)
                 .FirstOrDefaultAsync(user => user.Id == id);
         }
 

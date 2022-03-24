@@ -59,14 +59,23 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> DeleteAsync(int id)
         {
-            Todo? todo = await _dbContext.Todos.FindAsync(id);
-            if (todo != null)
+            Todo? todo = await _dbContext.Todos
+                .Include(t => t.TodoList)
+                .Include(t => t.TodoList.CreatedBy)
+                .Include("TodoList.CoauthorUsers")
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (todo == null)
             {
-                _dbContext.Todos.Remove(todo);
-                await _dbContext.SaveChangesAsync();
+                _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
                 return _commandResult;
             } 
-            _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
+            if (!await HasPermissionAsync(todo))
+            {
+                _commandResult.AddError("Todo", "User is not permitted to delete this task.");
+                return _commandResult;
+            }
+            _dbContext.Todos.Remove(todo);
+            await _dbContext.SaveChangesAsync();
             return _commandResult;
         }
 
@@ -84,14 +93,33 @@ namespace TodoWeb.Data.Services
         {
             Todo? todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Include(t => t.CreatedBy)
-                .Include(t => t.TodoList)
+                .Include(t => t.TodoList.CreatedBy)
+                .Include("TodoList.CoauthorUsers")
                 .FirstOrDefaultAsync(t => t.Id == id);
+            return await HasPermissionAsync(todo) 
+                ? todo?.GetViewDto() 
+                : null;
+        }
+        public async Task<bool> HasPermissionAsync(Todo? todo)
+        {
+            User? currentUser = await _accountService.GetCurrentUser();
             if (todo == null)
             {
-                return null;
+                return false;
             }
-            return todo.GetViewDto();
+
+            if (currentUser != null && 
+                currentUser.Roles.Any(role => role.Name == "Admin"))
+            {
+                return true;
+            }
+
+            bool isCoauthor = todo.TodoList
+                .CoauthorUsers
+                .Any(c => c.UserId == currentUser?.Id);
+            bool isAuthor = todo.TodoList.CreatedBy.Id == currentUser?.Id;
+
+            return isAuthor || isCoauthor;
         }
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
@@ -101,7 +129,6 @@ namespace TodoWeb.Data.Services
                 return _commandResult;
             }
 
-            User? user = await _accountService.GetCurrentUser();
             try
             {
                 var tasks = _dbContext.Todos;
@@ -117,7 +144,7 @@ namespace TodoWeb.Data.Services
             }
             catch
             {
-                _commandResult.AddError("Todos", "Unable to update tasks.");
+                _commandResult.AddError("Todo", "Unable to update tasks.");
             }
             return _commandResult;
         }
@@ -126,12 +153,20 @@ namespace TodoWeb.Data.Services
         {
             var todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
+                .Include(t => t.TodoList.CreatedBy)
+                .Include("TodoList.CoauthorUsers")
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todo == null)
             {
-                _commandResult.AddError("Todos", $"Task with ID {args.Id} not found.");
+                _commandResult.AddError("Todo", $"Task with ID {args.Id} not found.");
                 return _commandResult;
             } 
+
+            if (!await HasPermissionAsync(todo))
+            {
+                _commandResult.AddError("Todo", "User is not permitted to update this task.");
+                return _commandResult;
+            }
             
             args.Title = args.Title.Trim();
             args.Description = args.Description?.Trim();
@@ -159,7 +194,7 @@ namespace TodoWeb.Data.Services
             }
             catch
             {
-                _commandResult.AddError("Todos", "There was an error creating your task.");
+                _commandResult.AddError("Todo", "There was an error creating your task.");
             }
             return _commandResult;
         }
