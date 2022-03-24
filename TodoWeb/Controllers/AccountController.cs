@@ -24,7 +24,7 @@ namespace TodoWeb.Controllers
         {
             if (await IsLoggedIn())
             {
-                return RedirectToAction("Index", "Todos");
+                return RedirectToAction("Index", "TodoLists");
             }
             return View();
         }
@@ -40,7 +40,7 @@ namespace TodoWeb.Controllers
 
             var commandResult = await _accountService.Login(args);
             return commandResult.IsValid ? 
-                RedirectToAction("Index", "Todos") : 
+                RedirectToAction("Index", "TodoLists") : 
                 ShowErrors<LoginArgs>(commandResult, args);
         }
 
@@ -48,7 +48,7 @@ namespace TodoWeb.Controllers
         {
             if (await IsLoggedIn())
             {
-                return RedirectToAction("Index", "Todos");
+                return RedirectToAction("Index", "TodoLists");
             }
             return View();
         }

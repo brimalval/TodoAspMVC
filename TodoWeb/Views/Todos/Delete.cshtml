@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Delete";
+    ViewData["Index"] = $"/TodoLists/Details/{Model.TodoList.Id}";
 }
 
 <section aria-label="Task deletion section">
@@ -22,7 +23,7 @@
             @Html.DisplayNameFor(model => model.Title)
         </dt>
         <dd>
-            <summary class="form-control">@Html.DisplayFor(model => model.Title)</sum>
+            <summary class="form-control">@Html.DisplayFor(model => model.Title)</summary>
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Description)
@@ -37,7 +38,7 @@
     </dl>
 
     <div class="col-container mt-6">
-        <form asp-action="Delete">
+        <form asp-action="Delete" asp-route-fromList="@Model.TodoList.Id">
             <input type="hidden" asp-for="Id" />
             <input type="submit" value="Delete" class="btn btn-danger" aria-label="Task deletion confirmation button"/>
         </form>

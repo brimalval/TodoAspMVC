@@ -15,10 +15,16 @@
                 <li>
                     <a class="text-lg block font-semibold" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                @if (User.Identity != null && User.HasClaim(ClaimTypes.Role, "Admin"))
+                @if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
                 {
+                    @if (User.HasClaim(ClaimTypes.Role, "Admin"))
+                    {
                     <li>
                         <a asp-controller="Users" asp-action="Index">Users</a>
+                    </li>
+                    }
+                    <li>
+                        <a asp-controller="TodoLists" asp-action="Index">Lists</a>
                     </li>
                 }
             </ul>

@@ -17,12 +17,6 @@ namespace TodoWeb.Controllers
             _todoService = todoService;
         }
 
-        // GET: Todos
-        public async Task<IActionResult> Index()
-        {
-            return View(await _todoService.GetAllAsync());
-        }
-
         // GET: Todos/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -41,8 +35,13 @@ namespace TodoWeb.Controllers
         }
 
         // GET: Todos/Create
-        public IActionResult Create()
+        public IActionResult Create(int? forList)
         {
+            if (forList == null)
+            {
+                return NotFound();
+            }
+            ViewData["ForList"] = forList;
             return View();
         }
 
@@ -56,13 +55,14 @@ namespace TodoWeb.Controllers
             var commandResult = await _todoService.CreateAsync(todo);
             if (commandResult.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "TodoLists", new { id = todo.ListId });
             }
             var errors = commandResult.Errors;
             foreach (var error in errors)
             {
                 ModelState.AddModelError(error.Key, error.Value);
             }
+            ViewData["ForList"] = todo.ListId;
             return View(todo);
         }
 
@@ -79,7 +79,15 @@ namespace TodoWeb.Controllers
             {
                 return NotFound();
             }
-            return View(todo);
+            var args = new UpdateTodoArgs
+            {
+                Description = todo.Description,
+                Done = todo.Done,
+                Id = todo.Id,
+                Title = todo.Title,
+                TodoListId = todo.TodoList.Id
+            };
+            return View(args);
         }
 
         // POST: Todos/Edit/5
@@ -89,31 +97,24 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateTodoArgs args)
         {
-            Todo todo = new()
-            {
-                Id = args.Id,
-                Title = args.Title,
-                Description = args.Description
-            };
-
             if (!ModelState.IsValid) 
             {
-                return View(todo);
+                return View(args);
             }
 
             var commandResult = await _todoService.UpdateAsync(args);
 
             return commandResult.IsValid ?
-                RedirectToAction(nameof(Index)) : 
-                ShowErrors<UpdateTodoArgs>(
+                RedirectToAction("Details", "TodoLists", new { id = args.TodoListId }) :
+                ShowErrors(
                     commandResult,
                     args
                 );
         }
         // GET: Todos/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, int? fromList)
         {
-            if (id == null)
+            if (id == null || fromList == null)
             {
                 return NotFound();
             }
@@ -130,10 +131,10 @@ namespace TodoWeb.Controllers
         // POST: Todos/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, int fromList)
         {
             await _todoService.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "TodoLists", new { id = fromList });
         }
 
         [HttpPost]

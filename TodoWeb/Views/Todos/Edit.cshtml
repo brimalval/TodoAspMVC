@@ -1,7 +1,8 @@
-﻿@model TodoWeb.Dtos.TodoViewDto
+﻿@model TodoWeb.Dtos.UpdateTodoArgs
 
 @{
     ViewData["Title"] = "Edit";
+    ViewData["Index"] = $"/TodoLists/Details/{Model.TodoListId}";
 }
 
 <section aria-label="Edit task section">
@@ -10,6 +11,7 @@
     <form asp-action="Edit" aria-label="Edit task form">
         <div asp-validation-summary="ModelOnly" class="text-danger" aria-label="Error summary"></div>
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="TodoListId" />
         <div class="form-group">
             <label asp-for="Done" class="control-label">Mark as Done</label>
             <input asp-for="Done" type="checkbox" class="todo-checker"
