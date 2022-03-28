@@ -36,5 +36,12 @@ namespace TodoWeb.Extensions
             Name = role.Name,
             UsersInRole = role.UsersInRole.Select(user => user.GetViewDto())
         };
+        public static StatusViewDto GetViewDto(this Status status) => new()
+        {
+            Id = status.Id,
+            Color = status.Color,
+            Name = status.Name,
+            TodoList = status.TodoList.GetViewDto()
+        };
     }
 }
