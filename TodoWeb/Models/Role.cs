@@ -7,6 +7,6 @@ namespace TodoWeb.Models
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual ICollection<User> UsersInRole { get; set; }
+        public virtual IEnumerable<User> UsersInRole { get; set; }
     }
 }

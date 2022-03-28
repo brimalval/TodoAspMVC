@@ -14,8 +14,7 @@ namespace TodoWeb.Data.Services
         private readonly int titleCharLimit = 50;
         private readonly int descriptionCharLimit = 300;
         public TodoListService(ApplicationDbContext context,
-            IAccountService accountService, 
-            ITodoService todoService)
+            IAccountService accountService)
         {
             _context = context;
             _commandResult = new();
@@ -43,7 +42,7 @@ namespace TodoWeb.Data.Services
                 Title = args.Title.Trim(),
                 Description = args.Description?.Trim(),
             };
-            todoList.Authors.Add(user);
+            ((ICollection<User>) todoList.Authors).Add(user);
             await _context.TodoLists.AddAsync(todoList);
             await _context.SaveChangesAsync();
             return _commandResult;
@@ -226,7 +225,7 @@ namespace TodoWeb.Data.Services
                 return _commandResult;
             }
 
-            todoList.Authors.Add(coauthor);
+            ((ICollection<User>) todoList.Authors).Add(coauthor);
             await _context.SaveChangesAsync();
             return _commandResult;
         }
@@ -247,7 +246,7 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("Users", $"User {coauthorId} was not found.");
                 return _commandResult;
             }
-            todoList.Authors.Remove(coauthor);
+            ((ICollection<User>) todoList.Authors).Remove(coauthor);
             if (!todoList.Authors.Any())
             {
                 _context.TodoLists.Remove(todoList);

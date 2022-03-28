@@ -153,6 +153,10 @@ namespace TodoWeb.Controllers
             }
 
             TodoListViewDto todoList = await _todoListService.GetByIdAsync(id ?? -1);
+            if (todoList == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
             var nonCoauthors = await _todoListService.GetNonCoauthors(id ?? -1);
 
             return View((todoList, nonCoauthors));

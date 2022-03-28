@@ -53,17 +53,20 @@
 
     <hr class="my-5"/>
     <div class="col-container mt-6">
-        <form asp-action="AddPermission" class="flex flex-col space-y-2 items-center justify-center">
-            <input type="hidden" name="id" value="@Model.Item1.Id" />
-            <select name="coauthorId" class="form-control">
-                @foreach(var user in Model.Item2)
-                {
-                    <option value="@user.Id">
-                        @user.Email
-                    </option>
-                }
-            </select>
-            <input type="submit" value="Add" class="btn btn-primary" aria-label="Give permission to user selected"/>
-        </form>
+        @if (Model.Item2.Any())
+        {
+            <form asp-action="AddPermission" class="flex flex-col space-y-2 items-center justify-center">
+                <input type="hidden" name="id" value="@Model.Item1.Id" />
+                <select name="coauthorId" class="form-control">
+                    @foreach(var user in Model.Item2)
+                    {
+                        <option value="@user.Id">
+                            @user.Email
+                        </option>
+                    }
+                </select>
+                <input type="submit" value="Add" class="btn btn-primary" aria-label="Give permission to user selected"/>
+            </form>
+        }
     </div>
 </section>

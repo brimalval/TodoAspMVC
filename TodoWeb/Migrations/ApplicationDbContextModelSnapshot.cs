@@ -34,7 +34,7 @@ namespace TodoWeb.Migrations
 
                     b.HasIndex("UsersInRoleId");
 
-                    b.ToTable("RoleUser");
+                    b.ToTable("RoleUser", (string)null);
                 });
 
             modelBuilder.Entity("TodoListUser", b =>
@@ -49,7 +49,7 @@ namespace TodoWeb.Migrations
 
                     b.HasIndex("TodoListsId");
 
-                    b.ToTable("TodoListUser");
+                    b.ToTable("TodoListUser", (string)null);
                 });
 
             modelBuilder.Entity("TodoWeb.Models.Role", b =>
@@ -66,7 +66,7 @@ namespace TodoWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("TodoWeb.Models.Todo", b =>
@@ -102,7 +102,7 @@ namespace TodoWeb.Migrations
 
                     b.HasIndex("TodoListId");
 
-                    b.ToTable("Todos");
+                    b.ToTable("Todos", (string)null);
                 });
 
             modelBuilder.Entity("TodoWeb.Models.TodoList", b =>
@@ -122,7 +122,7 @@ namespace TodoWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TodoLists");
+                    b.ToTable("TodoLists", (string)null);
                 });
 
             modelBuilder.Entity("TodoWeb.Models.User", b =>
@@ -150,7 +150,7 @@ namespace TodoWeb.Migrations
                     b.HasIndex(new[] { "Email" }, "EmailIndex")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("RoleUser", b =>

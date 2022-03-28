@@ -17,7 +17,7 @@ namespace TodoWeb.Models
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Salt { get; set; }
-        public virtual ICollection<Role> Roles { get; set; }
-        public virtual ICollection<TodoList> TodoLists { get; set; }
+        public virtual IEnumerable<Role> Roles { get; set; }
+        public virtual IEnumerable<TodoList> TodoLists { get; set; }
     }
 }

@@ -8,9 +8,7 @@ namespace TodoWeb.Dtos
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-        [DisplayName("Created By")]
-        public User CreatedBy { get; set; }
-        public ICollection<Todo> Todos { get; set; }
-        public ICollection<User> Authors { get; set; }
+        public IEnumerable<TodoViewDto> Todos { get; set; }
+        public IEnumerable<UserViewDto> Authors { get; set; }
     }
 }

@@ -10,6 +10,6 @@ namespace TodoWeb.Dtos
         [DisplayName("Password Hash")]
         public string PasswordHash { get; set; }
         public string Salt { get; set; }
-        public ICollection<Role> Roles { get; set; }
+        public IEnumerable<RoleViewDto> Roles { get; set; }
     }
 }

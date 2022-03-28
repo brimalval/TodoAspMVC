@@ -1,19 +1,18 @@
 ﻿using System.ComponentModel;
 using TodoWeb.Models;
 
-namespace TodoWeb.Dtos
+namespace TodoWeb.Dtos;
+
+public class TodoViewDto : IDto
 {
-    public class TodoViewDto : IDto
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string? Description { get; set; }
-        public bool Done { get; set; }
-        [DisplayName("Created at")]
-        public DateTime CreatedDateTime { get; set; }
-        public int CreatedById { get; set; }
-        public int TodoListId { get; set; }
-        public virtual TodoList TodoList { get; set; }
-        public virtual User? CreatedBy { get; set; }
-    }
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string? Description { get; set; }
+    public bool Done { get; set; }
+    [DisplayName("Created at")]
+    public DateTime CreatedDateTime { get; set; }
+    public int CreatedById { get; set; }
+    public int TodoListId { get; set; }
+    public virtual TodoListViewDto TodoList { get; set; }
+    public virtual UserViewDto? CreatedBy { get; set; }
 }

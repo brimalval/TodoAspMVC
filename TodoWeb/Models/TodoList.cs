@@ -13,7 +13,7 @@ namespace TodoWeb.Models
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-        public virtual ICollection<Todo> Todos { get; set; }
-        public virtual ICollection<User> Authors { get; set; }
+        public virtual IEnumerable<Todo> Todos { get; set; }
+        public virtual IEnumerable<User> Authors { get; set; }
     }
 }
