@@ -21,13 +21,6 @@
     <partial name="_IndexNav" />
     <dl>
         <dt>
-            <label asp-for="Done" class="control-label">Done</label>
-        </dt>
-        <dd>
-            <input type="checkbox" class="todo-checker" disabled readonly data-id="@Model.Id" id="checkbox-@Model.Id" checked="@Model.Done" />
-            <label class="checkbox-display icon-container" for="checkbox-@Model.Id"></label>
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.Title)
         </dt>
         <dd>

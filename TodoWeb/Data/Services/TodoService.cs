@@ -118,34 +118,7 @@ namespace TodoWeb.Data.Services
 
             return isCoauthor;
         }
-
-        public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
-        {
-            if (!ids.Any())
-            {
-                return _commandResult;
-            }
-
-            try
-            {
-                var tasks = _dbContext.Todos;
-                var updatedTasks = tasks
-                    .Where(task => ids.Contains(task.Id));
-
-                foreach (var task in updatedTasks)
-                {
-                    task.Done = !task.Done;
-                    _dbContext.Todos.Update(task);
-                }
-                await _dbContext.SaveChangesAsync();
-            }
-            catch
-            {
-                _commandResult.AddError("Todo", "Unable to update tasks.");
-            }
-            return _commandResult;
-        }
-
+        //TODO : Change of status
         public async Task<CommandResult> UpdateAsync(UpdateTodoArgs args)
         {
             var todo = await _dbContext.Todos
@@ -183,7 +156,6 @@ namespace TodoWeb.Data.Services
                 {
                     todo.Description = (args.Description ?? "").Trim();
                     todo.Title = args.Title.Trim();
-                    todo.Done = args.Done;
                     _dbContext.Todos.Update(todo);
                     await _dbContext.SaveChangesAsync();
                 }

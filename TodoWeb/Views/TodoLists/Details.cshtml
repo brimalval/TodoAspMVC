@@ -25,11 +25,10 @@
         @foreach (var item in Model.Todos) {
         <article class="todo-container">
 
-            <input type="checkbox" class="todo-checker" data-id="@item.Id" id="checkbox-@item.Id" checked="@item.Done" aria-label="Task completion status checkbox"/>
-            <label class="checkbox-display" for="checkbox-@item.Id"></label>
+            <div class="icon-container bg-red-700"></div>
 
             <div class="flex-grow flex flex-col overflow-auto">
-                <summary id="title-@item.Id" class='@(item.Done ? "line-through" : "") font-semibold'>
+                <summary id="title-@item.Id" class="font-semibold">
                     <a asp-action="Details" asp-controller="Todos" asp-route-id="@item.Id">
                         @Html.DisplayFor(modelItem => item.Title)
                     </a>

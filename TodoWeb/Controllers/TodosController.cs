@@ -82,7 +82,6 @@ namespace TodoWeb.Controllers
             var args = new UpdateTodoArgs
             {
                 Description = todo.Description,
-                Done = todo.Done,
                 Id = todo.Id,
                 Title = todo.Title,
                 TodoListId = todo.TodoList.Id
@@ -137,16 +136,6 @@ namespace TodoWeb.Controllers
             return RedirectToAction("Details", "TodoLists", new { id = fromList });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleStatus (List<int> IdList)
-        {
-            var commandResult = await _todoService.ToggleStatus(IdList);
-            if (commandResult.IsValid)
-            {
-                return Ok();
-            }
-            return StatusCode(StatusCodes.Status500InternalServerError);
-        }
+        // TODO: Update Status
     }
 }

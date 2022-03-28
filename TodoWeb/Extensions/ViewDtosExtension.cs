@@ -10,7 +10,6 @@ namespace TodoWeb.Extensions
             Id = todo.Id,
             Title = todo.Title,
             Description = todo.Description,
-            Done = todo.Done,
             CreatedDateTime = todo.CreatedDateTime,
             TodoList = todo.TodoList.GetViewDto(),
             CreatedBy = todo.CreatedBy?.GetViewDto(),

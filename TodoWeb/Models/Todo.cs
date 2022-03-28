@@ -11,7 +11,6 @@ namespace TodoWeb.Models
         [Required]
         public string Title { get; set; }
         public string? Description { get; set; }
-        public bool Done { get; set; }
         public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
         public int? CreatedById { get; set; }
         public virtual User? CreatedBy { get; set; }
