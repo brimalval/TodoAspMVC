@@ -13,7 +13,7 @@
     <partial name="_IndexNav" />
 
     <section>
-        @if (Model.Item1.CoauthorUsers.Any())
+        @if (Model.Item1.Authors.Any())
         {
         <div class="flex justify-start overflow-auto w-full">
             <table class="flex-grow">
@@ -26,16 +26,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Item1.CoauthorUsers)
+                    @foreach (var item in Model.Item1.Authors)
                     {
                         <tr>
                             <td>
-                                @Html.DisplayFor(modelItem => item.User.Email)
+                                @Html.DisplayFor(modelItem => item.Email)
                             </td>
                             <td class="text-danger">
                                 <form asp-action="RemovePermission">
                                     <input type="hidden" name="id" value="@Model.Item1.Id" />
-                                    <input type="hidden" name="coauthorId" value="@item.UserId" />
+                                    <input type="hidden" name="coauthorId" value="@item.Id" />
                                     <input type="submit" value="Remove Permission" class="text-danger"
                                     aria-label="Remove permission from selected user"/>
                                 </form>

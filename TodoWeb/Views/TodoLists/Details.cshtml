@@ -5,7 +5,6 @@
 }
 
 <h1>@Model.Title</h1>
-<h2>By: @Model.CreatedBy.Email</h2>
 
 <section class="m-4 flex justify-center" aria-label="Add task button section">
     <a class="btn-primary" asp-action="Create" asp-controller="Todos" asp-route-forList="@Model.Id">

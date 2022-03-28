@@ -23,11 +23,7 @@ namespace TodoWeb.Controllers
         // GET: TodoLists
         public async Task<IActionResult> Index()
         {
-            var userTodoLists = (
-                await _todoListService.GetAllAsync(),
-                await _todoListService.GetUserCoauthoredLists()
-            );
-            return View(userTodoLists);
+            return View(await _todoListService.GetAllAsync());
         }
 
         // GET: TodoLists/Details/5

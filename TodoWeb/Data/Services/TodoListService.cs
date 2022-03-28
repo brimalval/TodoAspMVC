@@ -9,7 +9,6 @@ namespace TodoWeb.Data.Services
     public class TodoListService : ITodoListService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ITodoService _todoService;
         private readonly CommandResult _commandResult;
         private readonly IAccountService _accountService;
         private readonly int titleCharLimit = 50;
@@ -21,7 +20,6 @@ namespace TodoWeb.Data.Services
             _context = context;
             _commandResult = new();
             _accountService = accountService;
-            _todoService = todoService;
         }
         public async Task<CommandResult> CreateAsync(CreateTodoListArgs args)
         {
@@ -35,18 +33,17 @@ namespace TodoWeb.Data.Services
                 _commandResult.AddError("User", "Please log in.");
                 return _commandResult;
             }
-            if (await HasDuplicateByTitleAsync(args.Title.Trim()))
-            {
-                _commandResult.AddError("Title", "You already have a list with this title.");
-                return _commandResult;
-            }
+            args.Title = args.Title.Trim();
+
+            int duplicates = await CountDuplicatesByTitleAsync(args.Title);
+            args.Title += (duplicates > 0 ? $" ({duplicates})" : "");
 
             TodoList todoList = new()
             {
-                CreatedBy = user,
                 Title = args.Title.Trim(),
                 Description = args.Description?.Trim(),
             };
+            todoList.Authors.Add(user);
             await _context.TodoLists.AddAsync(todoList);
             await _context.SaveChangesAsync();
             return _commandResult;
@@ -56,7 +53,7 @@ namespace TodoWeb.Data.Services
         {
             TodoList? todoList = await _context.TodoLists
                 .Include(tl => tl.Todos)
-                .Include(tl => tl.CoauthorUsers)
+                .Include(tl => tl.Authors)
                 .FirstOrDefaultAsync(tl => tl.Id == id);
 
             if (!await HasPermissionAsync(todoList))
@@ -67,10 +64,6 @@ namespace TodoWeb.Data.Services
 
             if (todoList != null)
             {
-                foreach (var coauthorship in todoList.CoauthorUsers)
-                {
-                    _context.TodoListCoauthorships.Remove(coauthorship);
-                }
                 _context.TodoLists.Remove(todoList);
                 await _context.SaveChangesAsync();
                 return _commandResult;
@@ -83,39 +76,18 @@ namespace TodoWeb.Data.Services
         {
             User? currentUser = await _accountService.GetCurrentUser();
             var todoLists = await _context.TodoLists
-                .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
-                .Include(list => list.CoauthorUsers)
-                .Where(list => list.CreatedBy == currentUser)
+                .Include(list => list.Authors)
+                .Where(list => list.Authors.Any(author => author == currentUser))
                 .ToListAsync();
 
             return todoLists.Select(tl => tl.GetViewDto());
         }
-
-        public async Task<IEnumerable<TodoListViewDto>> GetUserCoauthoredLists()
-        {
-            User? user = await _accountService.GetCurrentUser();
-            if (user == null)
-            {
-                return new List<TodoListViewDto>();
-            }
-            return user.CoauthoredLists
-                .Where(coauthorship => coauthorship.ListId != null)
-                .Select(coauthorship => {
-                    return _context.TodoLists
-                    .Include(tl => tl.CreatedBy)
-                    .First(tl => tl.Id == coauthorship.ListId)
-                    .GetViewDto();
-                });
-        }
-
         public async Task<TodoListViewDto?> GetByIdAsync(int id)
         {
             var todoList = await _context.TodoLists
-                .Include(list => list.CreatedBy)
                 .Include(list => list.Todos)
-                .Include(list => list.CoauthorUsers)
-                .Include("CoauthorUsers.User")
+                .Include(list => list.Authors)
                 .FirstOrDefaultAsync(list => list.Id == id);
 
             return await HasPermissionAsync(todoList) 
@@ -135,17 +107,15 @@ namespace TodoWeb.Data.Services
                 return true;
             }
 
-            bool isCoauthor = todoList.CoauthorUsers
-                .Any(c => c.UserId == currentUser?.Id);
-            bool isAuthor = todoList.CreatedBy.Id == currentUser?.Id;
+            bool isCoauthor = todoList.Authors
+                .Any(c => c.Id == currentUser?.Id);
 
-            return isAuthor || isCoauthor;
+            return isCoauthor;
         }
         public async Task<CommandResult> UpdateAsync(UpdateTodoListArgs args)
         {
             var todoList = await _context.TodoLists
-                .Include(tl => tl.CoauthorUsers)
-                .Include(tl => tl.CreatedBy)
+                .Include(tl => tl.Authors)
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todoList == null)
             {
@@ -162,11 +132,9 @@ namespace TodoWeb.Data.Services
             args.Title = args.Title.Trim();
             args.Description = args.Description?.Trim();
 
-            if (await HasDuplicateByTitleAsync(args.Title, todoList.CreatedBy))
-            {
-                _commandResult.AddError("Title", "A task with this title already exists.");
-                return _commandResult;
-            }                     
+
+            int duplicates = await CountDuplicatesByTitleAsync(args.Title);
+            args.Title += (duplicates > 0 ? $" ({duplicates})" : "");
             try
             {
                 CreateTodoListArgs createArgs = new()
@@ -188,17 +156,13 @@ namespace TodoWeb.Data.Services
             }
             return _commandResult;
         }
-        public async Task<bool> HasDuplicateByTitleAsync(string title, User? creator = null)
+        public async Task<int> CountDuplicatesByTitleAsync(string title)
         {
-            if (creator == null)
-            {
-                creator = await _accountService.GetCurrentUser();
-            }
+            User? creator = await _accountService.GetCurrentUser();
+            // TODO: Better duplicate name detection
             return await _context.TodoLists
-                .Include(list => list.CreatedBy)
-                .Include(list => list.Todos)
-                .Where(list => list.CreatedBy == creator)
-                .AnyAsync(list => list.Title == title);
+                .Where(list => list.Authors.Any(coauthor => coauthor == creator))
+                .CountAsync(list => list.Title.ToLower().StartsWith(title.ToLower()));
         }
         public bool ValidateCreateArgs(CreateTodoListArgs args)
         {
@@ -222,7 +186,7 @@ namespace TodoWeb.Data.Services
         public async Task<IEnumerable<UserViewDto>> GetNonCoauthors(int id)
         {
             TodoList? todoList = await _context.TodoLists
-                .Include(tl => tl.CoauthorUsers)
+                .Include(tl => tl.Authors)
                 .FirstOrDefaultAsync(tl => tl.Id == id);
 
             if (todoList == null)
@@ -230,8 +194,8 @@ namespace TodoWeb.Data.Services
                 return new List<UserViewDto>();
             }
 
-            var coauthorIds = todoList.CoauthorUsers
-                .Select(coauthor => coauthor.UserId);
+            var coauthorIds = todoList.Authors
+                .Select(coauthor => coauthor.Id);
 
             User? currentUser = await _accountService.GetCurrentUser();
             if (currentUser != null)
@@ -262,25 +226,32 @@ namespace TodoWeb.Data.Services
                 return _commandResult;
             }
 
-            await _context.TodoListCoauthorships.AddAsync(new()
-            {
-                ListId = id,
-                UserId = coauthorId
-            });
+            todoList.Authors.Add(coauthor);
             await _context.SaveChangesAsync();
             return _commandResult;
         }
 
         public async Task<CommandResult> RemovePermission(int id, int coauthorId)
         {
-            var coauthorship = await _context.TodoListCoauthorships
-                .FirstOrDefaultAsync(c => c.UserId == coauthorId && c.ListId == id);
-            if (coauthorship == null)
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(list => list.Id == id
+                && list.Authors.Any(author => author.Id == coauthorId));
+            if (todoList == null)
             {
-                _commandResult.AddError("TodoListPermissions", $"Permission for user {coauthorId} on list {id} not found.");
+                _commandResult.AddError("TodoList", $"Permission for user {coauthorId} on list {id} not found.");
                 return _commandResult;
             }
-            _context.TodoListCoauthorships.Remove(coauthorship);
+            User? coauthor = await _context.Users.FindAsync(coauthorId);
+            if (coauthor == null)
+            {
+                _commandResult.AddError("Users", $"User {coauthorId} was not found.");
+                return _commandResult;
+            }
+            todoList.Authors.Remove(coauthor);
+            if (!todoList.Authors.Any())
+            {
+                _context.TodoLists.Remove(todoList);
+            }
             await _context.SaveChangesAsync();
             return _commandResult;
         }

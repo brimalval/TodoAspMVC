@@ -11,6 +11,6 @@ namespace TodoWeb.Dtos
         [DisplayName("Created By")]
         public User CreatedBy { get; set; }
         public ICollection<Todo> Todos { get; set; }
-        public ICollection<CoauthorUserTodoList> CoauthorUsers { get; set; }
+        public ICollection<User> Authors { get; set; }
     }
 }

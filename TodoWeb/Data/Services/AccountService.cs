@@ -75,7 +75,7 @@ namespace TodoWeb.Data.Services
             int id = int.Parse(idString);
 
             return await _dbContext.Users
-                .Include(user => user.CoauthoredLists)
+                .Include(user => user.TodoLists)
                 .Include(user => user.Roles)
                 .FirstOrDefaultAsync(user => user.Id == id);
         }
@@ -84,7 +84,7 @@ namespace TodoWeb.Data.Services
         {
             User? user = await _dbContext.Users
                 .Include(user => user.Roles)
-                .Include(user => user.CoauthoredLists)
+                .Include(user => user.TodoLists)
                 .FirstOrDefaultAsync(user => user.Email == email);
             return user;
         }

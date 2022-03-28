@@ -61,8 +61,7 @@ namespace TodoWeb.Data.Services
         {
             Todo? todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Include(t => t.TodoList.CreatedBy)
-                .Include("TodoList.CoauthorUsers")
+                .Include("TodoList.Authors")
                 .FirstOrDefaultAsync(t => t.Id == id);
             if (todo == null)
             {
@@ -93,8 +92,7 @@ namespace TodoWeb.Data.Services
         {
             Todo? todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Include(t => t.TodoList.CreatedBy)
-                .Include("TodoList.CoauthorUsers")
+                .Include("TodoList.Authors")
                 .FirstOrDefaultAsync(t => t.Id == id);
             return await HasPermissionAsync(todo) 
                 ? todo?.GetViewDto() 
@@ -115,11 +113,10 @@ namespace TodoWeb.Data.Services
             }
 
             bool isCoauthor = todo.TodoList
-                .CoauthorUsers
-                .Any(c => c.UserId == currentUser?.Id);
-            bool isAuthor = todo.TodoList.CreatedBy.Id == currentUser?.Id;
+                .Authors
+                .Any(c => c.Id == currentUser?.Id);
 
-            return isAuthor || isCoauthor;
+            return isCoauthor;
         }
 
         public async Task<CommandResult> ToggleStatus(IEnumerable<int> ids)
@@ -153,8 +150,7 @@ namespace TodoWeb.Data.Services
         {
             var todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Include(t => t.TodoList.CreatedBy)
-                .Include("TodoList.CoauthorUsers")
+                .Include(t => t.TodoList.Authors)
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todo == null)
             {

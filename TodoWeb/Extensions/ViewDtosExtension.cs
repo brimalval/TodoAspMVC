@@ -21,8 +21,7 @@ namespace TodoWeb.Extensions
             Todos = todoList.Todos,
             Title = todoList.Title,
             Description = todoList.Description,
-            CreatedBy = todoList.CreatedBy,
-            CoauthorUsers = todoList.CoauthorUsers
+            Authors = todoList.Authors
         };
         public static UserViewDto GetViewDto(this User user) => new()
         {
