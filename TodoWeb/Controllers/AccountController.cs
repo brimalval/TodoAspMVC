@@ -71,7 +71,7 @@ namespace TodoWeb.Controllers
         public async Task<IActionResult> Logout()
         {
             await _accountService.Logout();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "TodoLists");
         }
 
         public IActionResult AccessDenied()

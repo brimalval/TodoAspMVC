@@ -13,7 +13,7 @@
         <nav class="font-sans items-center flex place-content-between px-3">
             <ul class="flex space-x-3 items-center">
                 <li>
-                    <a class="text-lg block font-semibold" asp-controller="Home" asp-action="Index">Home</a>
+                    <a class="text-lg block font-semibold" asp-controller="TodoLists" asp-action="Index">Home</a>
                 </li>
                 @if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
                 {
@@ -23,9 +23,6 @@
                         <a asp-controller="Users" asp-action="Index">Users</a>
                     </li>
                     }
-                    <li>
-                        <a asp-controller="TodoLists" asp-action="Index">Lists</a>
-                    </li>
                 }
             </ul>
             <partial name="_LoginPartial" />
