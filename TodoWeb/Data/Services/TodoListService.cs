@@ -196,12 +196,6 @@ namespace TodoWeb.Data.Services
             var coauthorIds = todoList.Authors
                 .Select(coauthor => coauthor.Id);
 
-            User? currentUser = await _accountService.GetCurrentUser();
-            if (currentUser != null)
-            {
-                coauthorIds = coauthorIds.Append(currentUser.Id);
-            }
-
             var nonCoauthors = await _context.Users
                 .Where(user => !coauthorIds.Contains(user.Id))
                 .Select(user => user.GetViewDto())
@@ -253,6 +247,24 @@ namespace TodoWeb.Data.Services
             }
             await _context.SaveChangesAsync();
             return _commandResult;
+        }
+
+        public async Task<IEnumerable<TodoViewDto>?> GetTodosPaginated(int id, int pageNumber, int pageSize)
+        {
+            var todoList = await GetByIdAsync(id);
+            if (todoList == null)
+            {
+                return null;
+            }
+            return GetTodosPaginated(todoList, pageNumber, pageSize);
+        }
+
+        public IEnumerable<TodoViewDto> GetTodosPaginated(TodoListViewDto todo, int pageNumber, int pageSize)
+        {
+            return todo.Todos
+                .OrderBy(tl => tl.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
         }
     }
 }

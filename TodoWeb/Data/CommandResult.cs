@@ -13,5 +13,6 @@
         }
         public bool IsValid { get => _errors.Count == 0; }
         public Dictionary<string, string> Errors { get => _errors; }
+        public object Data { get; set; }
     }
 }

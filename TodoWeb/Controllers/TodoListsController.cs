@@ -1,12 +1,9 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TodoWeb.Data;
 using TodoWeb.Data.Services;
 using TodoWeb.Dtos;
-using TodoWeb.Models;
 
 namespace TodoWeb.Controllers
 {
@@ -182,6 +179,16 @@ namespace TodoWeb.Controllers
                 LoadErrors(commandResult);
             }
             return RedirectToAction(nameof(ManagePermissions), new { id });
+        }
+
+        public async Task<IActionResult> GetTodos(int id, int pageNumber, int pageSize)
+        {
+            var list = await _todoListService.GetByIdAsync(id);
+            if (list == null)
+            {
+                return BadRequest($"List with ID {id} not found.");
+            }
+            return ViewComponent("List", new { list, pageNumber, pageSize });
         }
     }
 }

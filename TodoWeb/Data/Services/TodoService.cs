@@ -49,6 +49,7 @@ namespace TodoWeb.Data.Services
                     };
                     await _dbContext.Todos.AddAsync(todo);
                     await _dbContext.SaveChangesAsync();
+                    _commandResult.Data = todo.GetViewDto();
                 }
             } catch
             {

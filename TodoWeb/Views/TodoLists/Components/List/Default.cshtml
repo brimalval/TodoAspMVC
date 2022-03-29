@@ -1,0 +1,5 @@
+﻿@model IEnumerable<TodoViewDto>
+
+@foreach (var item in Model) {
+<partial name="_TodoItem" model="item" />
+}

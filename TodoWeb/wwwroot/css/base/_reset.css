@@ -29,3 +29,7 @@ nav {
   @apply bg-white;
 }
 
+hr {
+  @apply my-6;
+}
+

@@ -2,6 +2,14 @@
 {
     public class UpdateTodoArgs : IArgsDto
     {
+        public UpdateTodoArgs() {}
+        public UpdateTodoArgs(TodoViewDto todoViewDto)
+        {
+            Description = todoViewDto.Description;
+            Id = todoViewDto.Id;
+            Title = todoViewDto.Title;
+            TodoListId = todoViewDto.TodoListId;
+        }
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; } = "";

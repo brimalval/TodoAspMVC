@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using TodoWeb.Models;
 
 namespace TodoWeb.Dtos;
@@ -12,6 +13,8 @@ public class TodoViewDto : IDto
     public DateTime CreatedDateTime { get; set; }
     public int CreatedById { get; set; }
     public int TodoListId { get; set; }
+    [JsonIgnore]
     public virtual TodoListViewDto TodoList { get; set; }
+    [JsonIgnore]
     public virtual UserViewDto? CreatedBy { get; set; }
 }
