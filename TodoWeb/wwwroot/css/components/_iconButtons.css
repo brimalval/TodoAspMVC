@@ -1,5 +1,5 @@
 .todo-item-btn {
-  @apply rounded-sm transition hover:text-white duration-300 p-1 m-3;
+  @apply rounded-full h-full transition hover:text-white duration-300 p-1 m-3;
 }
 
 .delete-todo-btn {

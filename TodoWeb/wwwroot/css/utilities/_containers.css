@@ -7,7 +7,7 @@
 }
 
 .todo-container {
-  @apply relative w-full rounded-md flex bg-slate-200 p-3 items-center min-h-[6rem] shadow-md;
+  @apply relative w-full rounded-md flex p-3 items-center min-h-[6rem] shadow-md;
 }
 
 .form-group, dt {
