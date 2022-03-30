@@ -1,25 +1,25 @@
 ﻿@model TodoViewDto
 <article class="todo-container bg-slate-200">
 
-    <div class="icon-container bg-red-700"></div>
+    <div class="icon-container @Model.Status?.Color mr-5 rounded-full"></div>
 
-    <div class="flex-grow flex flex-col overflow-auto">
-        <summary id="title-@Model.Id" class="font-semibold">
-            <a asp-action="Details" asp-controller="Todos" asp-route-id="@Model.Id">
-                @Html.DisplayFor(modelItem => Model.Title)
-            </a>
-        </summary>
-        <details class="cursor-pointer">
-            @Html.DisplayFor(modelItem => Model.Description)
-        </details>
-    </div>
-
-    <a class="edit-todo-btn" asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id" aria-label="Edit todo button">
-        <div class="icon-container">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
+    <form class="flex-grow flex items-center space-x-3 edit-todo-form">
+        <div class="flex-grow flex flex-col overflow-auto">
+            <summary id="title-@Model.Id" class="font-semibold">
+                <input asp-for="Title" class="focus:form-control" />
+            </summary>
+            <details class="cursor-pointer">
+                <textarea>@Model.Description</textarea>
+            </details>
         </div>
+
+        <select asp-for="Status">
+        </select>
+    </form>
+    <a class="edit-todo-btn" asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id" aria-label="Edit todo button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
     </a>
 
     <form asp-controller="Todos" asp-action="DeleteAjax" asp-route-id="@Model.Id" class="delete-todo-form">

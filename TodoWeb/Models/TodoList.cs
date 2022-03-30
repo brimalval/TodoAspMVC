@@ -7,6 +7,7 @@ namespace TodoWeb.Models
         public TodoList ()
         {
             Authors = new List<User>();
+            Statuses = new List<Status>();
         }
 
         [Key]

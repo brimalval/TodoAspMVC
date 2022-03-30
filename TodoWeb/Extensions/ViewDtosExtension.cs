@@ -13,6 +13,7 @@ namespace TodoWeb.Extensions
             CreatedDateTime = todo.CreatedDateTime,
             TodoList = todo.TodoList.GetViewDto(),
             CreatedBy = todo.CreatedBy?.GetViewDto(),
+            Status = todo.Status?.GetViewDto()
         };
         public static TodoListViewDto GetViewDto(this TodoList todoList) => new()
         {
@@ -20,7 +21,8 @@ namespace TodoWeb.Extensions
             Todos = todoList.Todos.Select(todo => todo.GetViewDto()),
             Title = todoList.Title,
             Description = todoList.Description,
-            Authors = todoList.Authors.Select(author => author.GetViewDto())
+            Authors = todoList.Authors.Select(author => author.GetViewDto()),
+            Statuses = todoList.Statuses.Select(status => status.GetViewDto())
         };
         public static UserViewDto GetViewDto(this User user) => new()
         {

@@ -90,7 +90,8 @@ namespace TodoWeb.Data.Services
         {
             Todo? todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
-                .Include("TodoList.Authors")
+                .Include(t => t.Status)
+                .Include(t => t.TodoList.Authors)
                 .FirstOrDefaultAsync(t => t.Id == id);
             return await HasPermissionAsync(todo) 
                 ? todo?.GetViewDto() 
@@ -122,6 +123,7 @@ namespace TodoWeb.Data.Services
             var todo = await _dbContext.Todos
                 .Include(t => t.TodoList)
                 .Include(t => t.TodoList.Authors)
+                .Include(t => t.Status)
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todo == null)
             {
@@ -154,6 +156,7 @@ namespace TodoWeb.Data.Services
                 {
                     todo.Description = (args.Description ?? "").Trim();
                     todo.Title = args.Title.Trim();
+                    todo.StatusId = args.Status?.Id;
                     _dbContext.Todos.Update(todo);
                     await _dbContext.SaveChangesAsync();
                 }

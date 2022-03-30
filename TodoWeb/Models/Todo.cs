@@ -16,5 +16,7 @@ namespace TodoWeb.Models
         public virtual User? CreatedBy { get; set; }
         public int TodoListId { get; set; }
         public virtual TodoList TodoList { get; set; }
+        public int? StatusId { get; set; }
+        public virtual Status? Status { get; set; }
     }
 }

@@ -77,6 +77,7 @@ namespace TodoWeb.Data.Services
             var todoLists = await _context.TodoLists
                 .Include(list => list.Todos)
                 .Include(list => list.Authors)
+                .Include(list => list.Statuses)
                 .Where(list => list.Authors.Any(author => author == currentUser))
                 .ToListAsync();
 
@@ -87,6 +88,7 @@ namespace TodoWeb.Data.Services
             var todoList = await _context.TodoLists
                 .Include(list => list.Todos)
                 .Include(list => list.Authors)
+                .Include(list => list.Statuses)
                 .FirstOrDefaultAsync(list => list.Id == id);
 
             return await HasPermissionAsync(todoList) 
@@ -115,6 +117,7 @@ namespace TodoWeb.Data.Services
         {
             var todoList = await _context.TodoLists
                 .Include(tl => tl.Authors)
+                .Include(list => list.Statuses)
                 .FirstOrDefaultAsync(t => t.Id == args.Id);
             if (todoList == null)
             {

@@ -7,5 +7,5 @@ public class TodoListViewDto : IDto
     public string? Description { get; set; }
     public IEnumerable<TodoViewDto> Todos { get; set; }
     public IEnumerable<UserViewDto> Authors { get; set; }
-    public virtual IEnumerable<StatusViewDto> Status { get; set; }
+    public virtual IEnumerable<StatusViewDto> Statuses { get; set; }
 }
