@@ -57,13 +57,22 @@ namespace TodoWeb.Controllers
             {
                 return RedirectToAction("Details", "TodoLists", new { id = todo.ListId });
             }
-            var errors = commandResult.Errors;
-            foreach (var error in errors)
+            ViewData["ForList"] = todo.ListId;
+            return ShowErrors(commandResult, todo);
+        }
+
+        // POST: Todos/CreateAjax
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAjax(CreateTodoArgs todo)
+        {
+            var commandResult = await _todoService.CreateAsync(todo);
+            if (commandResult.IsValid)
             {
-                ModelState.AddModelError(error.Key, error.Value);
+                return PartialView("_TodoItem", commandResult.Data);
             }
             ViewData["ForList"] = todo.ListId;
-            return View(todo);
+            return Json(commandResult);
         }
 
         // GET: Todos/Edit/5
@@ -134,6 +143,18 @@ namespace TodoWeb.Controllers
         {
             await _todoService.DeleteAsync(id);
             return RedirectToAction("Details", "TodoLists", new { id = fromList });
+        }
+        
+        // POST: Todos/DeleteAjax/5
+        [HttpPost, ActionName("DeleteAjax")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAjaxConfirmed(int id, int fromList)
+        {
+            var commandResult = await _todoService.DeleteAsync(id);
+            if (!commandResult.IsValid) {
+                return Json(commandResult, StatusCode(StatusCodes.Status500InternalServerError));
+            }
+            return Ok();
         }
 
         // TODO: Update Status

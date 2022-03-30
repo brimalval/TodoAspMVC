@@ -1,11 +1,28 @@
 ﻿@model CreateTodoArgs
 
-<section class="todo-container bg-white" aria-label="Todo creation form">
-    <form asp-action="Create" asp-controller="Todos" asp-route-forList="@Model.ListId"
-     class="flex-grow flex overflow-auto">
-        <input asp-for="Title" class="form-control mr-4" />
+<label class="block hover:cursor-pointer">
+    <input type="checkbox" class="collapse-checkbox" value="value" />
+    <div class="flex space-x-3 items-center">
+        <span class="font-semibold">Add a task</span>
+        <div class="collapse-icon icon-container duration-150 rotate-90">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        </div>
+    </div>
+</label>
+<section class="bg-slate-50 shadow-inner" aria-label="Todo creation form">
+    <form asp-action="CreateAjax" asp-controller="Todos"
+     class="flex-grow flex overflow-auto todo-creation-form">
+        <input asp-for="ListId" class="hidden" value="@Model.ListId" />
+        <div class="flex-grow flex flex-col space-y-2 p-4">
+            <small>@Html.DisplayNameFor(c => c.Title)</small>
+            <input asp-for="Title" class="form-control mr-4" />
+            <small>@Html.DisplayNameFor(c => c.Description)</small>
+            <input asp-for="Description" class="form-control mr-4" />
+        </div>
 
-        <button class="btn-primary" type="submit">
+        <button class="todo-item-btn hover:bg-primary" type="submit">
             @* Plus icon svg *@
             <div class="icon-container rounded-full">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

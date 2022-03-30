@@ -5,10 +5,10 @@ using TodoWeb.Dtos;
 
 namespace TodoWeb.Views.ViewComponents
 {
-    public class ListViewComponent : ViewComponent
+    public class TodosViewComponent : ViewComponent
     {
         private readonly ITodoListService _todoListService;
-        public ListViewComponent(ITodoListService todoListService)
+        public TodosViewComponent(ITodoListService todoListService)
         {
             _todoListService = todoListService;
         }

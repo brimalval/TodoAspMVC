@@ -188,7 +188,7 @@ namespace TodoWeb.Controllers
             {
                 return BadRequest($"List with ID {id} not found.");
             }
-            return ViewComponent("List", new { list, pageNumber, pageSize });
+            return ViewComponent("Todos", new { list, pageNumber, pageSize });
         }
     }
 }
