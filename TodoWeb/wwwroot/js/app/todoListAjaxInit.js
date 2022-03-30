@@ -1,17 +1,32 @@
 ﻿(function (window) {
     function todoListAjaxInit() {
         // TODO : Ajax functions for todo tasks
+        function ajaxSubmit(form, type, successCallback, errorCallback) {
+            var data = $(form).serialize();
+            $.ajax({
+                type: type,
+                url: form.action,
+                data: data,
+                success: successCallback,
+                error: errorCallback
+            });
+        }
         $('.page-control').submit(function (e) {
             const form = this;
             const id = form.dataset.id;
-            $.ajax({
-                type: "GET",
-                url: form.action,
-                data: $(form).serialize(),
-                success: (data) => {
-                    $('#todos-'+id).html(data);
-                }
-            });
+            const success = (data) => {
+                $('#todos-'+id).html(data);
+            };
+            ajaxSubmit(form, "POST", success);
+            return false;
+        });
+        $('.todo-creation-form').submit(function (e) {
+            const form = this;
+            const data = $(form).serialize();
+            const success = (data) => {
+                console.log(data);
+            }
+            ajaxSubmit(form, "POST", success);
             return false;
         });
         function findPageNumber(e) {
@@ -45,6 +60,13 @@
             const pageControl = $(this).parents('.page-control');
             pageControl.submit();
         }); 
+        $('.collapse-checkbox').change(function (e) {
+            const parent = $(this).parent();
+            parent.next().toggleClass('hidden');
+            const icon = parent.find('.collapse-icon');
+            console.log(icon);
+            icon.toggleClass('rotate-90');
+        });
         delete window.todoListAjaxInit;
     }
     window.todoListAjaxInit = todoListAjaxInit;
