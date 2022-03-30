@@ -60,10 +60,7 @@ namespace TodoWeb.Data.Services
 
         public async Task<CommandResult> DeleteAsync(int id)
         {
-            Todo? todo = await _dbContext.Todos
-                .Include(t => t.TodoList)
-                .Include("TodoList.Authors")
-                .FirstOrDefaultAsync(t => t.Id == id);
+            Todo? todo = await _dbContext.Todos.FindAsync(id);
             if (todo == null)
             {
                 _commandResult.AddError("Todo", "The task specified by the ID does not exist.");
@@ -170,16 +167,16 @@ namespace TodoWeb.Data.Services
         public bool ValidateCreateArgs(CreateTodoArgs args)
         {
             string title = args.Title;
-            if (title.Trim().Length >=  titleCharLimit)
+            if (!title.Trim().IsBelowMaxLength(titleCharLimit))
             {
                 _commandResult.AddError("Title", "The inputted title is too long.");
             }
-            else if (Regex.Match(title, @"[^a-zA-Z0-9\-_\s()]").Success)
+            else if (title.HasSpecialChars())
             {
                 _commandResult.AddError("Title", "Special characters are not allowed.");
             }
 
-            if (args.Description != null && args.Description.Length > descriptionCharLimit)
+            if (args.Description != null && !args.Description.Trim().IsBelowMaxLength(descriptionCharLimit))
             {
                 _commandResult.AddError("Description", "The given description is too long.");
             }

@@ -15,6 +15,6 @@ namespace TodoWeb.Models
         public string? Description { get; set; }
         public virtual IEnumerable<Todo> Todos { get; set; }
         public virtual IEnumerable<User> Authors { get; set; }
-        public virtual IEnumerable<Status> Status { get; set; }
+        public virtual IEnumerable<Status> Statuses { get; set; }
     }
 }
