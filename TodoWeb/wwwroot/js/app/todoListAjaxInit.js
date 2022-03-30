@@ -11,79 +11,118 @@
                 error: errorCallback
             });
         }
-        $('.list-parent').each(function() {
-            const listParent = $(this);
-            const pageControl = listParent.find('.page-control');
-            const createTodoForm = listParent.find('.todo-creation-form');
 
-            const creationCallback = function (e) {
-                const form = this;
-                const success = (data) => {
-                    refreshTodos();
-                }
-                ajaxSubmit(form, "POST", success);
-                return false;
-            }
-            $(document).on('submit', '.todo-creation-form', creationCallback);
-
-            const deletionCallback = function (e) {
-                const form = this;
-                const success = (data) => {
-                    refreshTodos();
-                }
-                if (confirm("Are you sure you want to delete this task?")) {
-                    ajaxSubmit(form, "POST", success);
-                }
-                return false;
-            }
-            $(document).on('submit', '.delete-todo-form', deletionCallback);
-
-            pageControl.submit(function (e) {
-                const form = this;
-                const id = form.dataset.id;
-                const success = (data) => {
-                    $('#todos-'+id).html(data);
-                };
-                ajaxSubmit(form, "GET", success);
-                return false;
+        function showErrors(errors) {
+            var message = "";
+            $.each(errors, function (key, error) {
+                message += error + "\n";
             });
+            toastr.error(message);
+        }
 
-            function refreshTodos() {
-                pageControl.submit();
+        function findListParent(e) {
+            return $(e).parents('.list-parent');
+        }
+
+        function findPageControl(e) {
+            const listParent = findListParent(e);
+            return listParent.find('.page-control');
+        }
+
+        function findPageNumber(e) {
+            const pageControl = findPageControl(e);
+            return pageControl.find('.page-number');
+        }
+
+        function refreshTodos(e) {
+            const pageControl = findPageControl(e);
+            pageControl.submit();
+        }
+
+        $(document).on('submit', '.todo-creation-form', function (e) {
+            const form = this;
+            const success = (data) => {
+                toastr.success("Task successfully created!");
+                refreshTodos(this);
             }
+            const error = (data) => {
+                showErrors(data.responseJSON.errors);
+            }
+            ajaxSubmit(form, "POST", success, error);
+            return false;
+        });
 
+        $(document).on('submit', '.delete-todo-form', function (e) {
+            const form = this;
+            const success = (data) => {
+                toastr.success("Task successfully deleted!");
+                refreshTodos(this);
+            }
+            const error = (data) => {
+                showErrors(data.responseJSON.errors);
+            }
+            if (confirm("Are you sure you want to delete this task?")) {
+                ajaxSubmit(form, "POST", success, error);
+            }
+            return false;
+        });
+
+        $(document).on('submit', '.edit-todo-form', function (e) {
+            const form = this;
+            const success = (data) => {
+                console.log(data);
+            };
+            ajaxSubmit(form, "POST", success);
+            return false;
+        });
+
+        $(document).on('change', '.edit-todo-form input, .edit-todo-form select', function (e) {
+            console.log(this);
+        });
+
+        $(document).on('submit', '.page-control', function (e) {
+            const form = this;
+            const id = form.dataset.id;
+            const success = (data) => {
+                $('#todos-'+id).html(data);
+            };
+            ajaxSubmit(form, "GET", success);
+            return false;
+        });
+
+        $(document).on('change', '.page-number', function(e) {
+            if (this.value < 1) {
+                this.value = 1;
+            }
+            refreshTodos(this);
+        });
+
+        $(document).on('click', '.page-next', function (e) {
+            const pageControl = findPageControl(this);
             const pageNumber = pageControl.find('.page-number');
-            pageNumber.change(function(e) {
-                if (this.value < 1) {
-                    this.value = 1;
-                }
-                refreshTodos();
-            });
+            pageNumber[0].stepUp();
+        });
 
-            const nextPageBtn = pageControl.find('.page-next');
-            nextPageBtn.click(function(e) {
-                pageNumber[0].stepUp();
-            });
+        $(document).on('click', '.page-prev', function(e) {
+            const pageControl = findPageControl(this);
+            const pageNumber = pageControl.find('.page-number');
+            if (pageNumber.val() > 1) {
+                pageNumber[0].stepDown();
+            }
+        });
 
-            const prevPageBtn = pageControl.find('.page-prev');
-            prevPageBtn.click(function(e) {
-                if (pageNumber.val() > 1) {
-                    pageNumber[0].stepDown();
-                }
-            });
+        $(document).on('change', '.page-size', function (e) {
+            const pageNumber = findPageNumber(this);
+            pageNumber.value = 1;
+            refreshTodos(this);
+        }); 
 
-            const pageSize = pageControl.find('.page-size');
-            pageSize.change(function(e) {
-                pageNumber.value = 1;
-                refreshTodos();
-            }); 
-
-            const collapseCheckbox = listParent.find('.collapse-checkbox');
-            collapseCheckbox.change(function (e) {
-                createTodoForm.parent().toggleClass('hidden');
-                const icon = $(this).parent().find('.collapse-icon');
-                icon.toggleClass('rotate-90');
-            });
+        $(document).on('change', '.collapse-checkbox', function (e) {
+            const listParent = findListParent(this);
+            const createTodoForm = listParent.find('.todo-creation-form');
+            createTodoForm.parent().toggleClass('hidden');
+            const icon = $(this).parent().find('.collapse-icon');
+            icon.toggleClass('rotate-90');
         });
         delete window.todoListAjaxInit;
     }

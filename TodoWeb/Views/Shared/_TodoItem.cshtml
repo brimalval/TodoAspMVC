@@ -1,19 +1,25 @@
 ﻿@model TodoViewDto
+@{
+    ViewData["Selected"] = Model.Status == null ? "none" : Model.Status.Id;
+}
 <article class="todo-container bg-slate-200">
 
     <div class="icon-container @Model.Status?.Color mr-5 rounded-full"></div>
 
-    <form class="flex-grow flex items-center space-x-3 edit-todo-form">
+    <form asp-action="EditAjax" asp-controller="Todos" 
+    class="flex-grow flex items-center space-x-3 edit-todo-form">
+        <input asp-for="Id" type="hidden" />
         <div class="flex-grow flex flex-col overflow-auto">
             <summary id="title-@Model.Id" class="font-semibold">
                 <input asp-for="Title" class="focus:form-control" />
             </summary>
             <details class="cursor-pointer">
-                <textarea>@Model.Description</textarea>
+                <textarea name="Description">@Model.Description</textarea>
             </details>
         </div>
 
-        <select asp-for="Status">
+        <select asp-for="StatusId" asp-items='@(new SelectList(Model.TodoList.Statuses, "Id", "Name", ViewData["Selected"]))'>
+            <option disabled selected>No status selected</option>
         </select>
     </form>
     <a class="edit-todo-btn" asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id" aria-label="Edit todo button">
@@ -32,3 +38,6 @@
         </button>
     </form>
 </article>
+<script>
+    console.log('@ViewData["Selected"]');
+</script>

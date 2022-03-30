@@ -1,7 +1,7 @@
 @model TodoListViewDto
 
 <section class="list-parent">
-<partial name="_TodoInput" model="@new CreateTodoArgs() { ListId = Model.Id }" />
+<partial name="_TodoInput" model="@(new CreateTodoArgs() { ListId = Model.Id })" />
 <hr /> 
     <section class="flex flex-col space-y-4" aria-label="Todo/task list" id="todos-@Model.Id">
         @if (Model.Todos.Count() != 0) {

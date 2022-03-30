@@ -67,11 +67,10 @@ namespace TodoWeb.Controllers
         public async Task<IActionResult> CreateAjax(CreateTodoArgs todo)
         {
             var commandResult = await _todoService.CreateAsync(todo);
-            if (commandResult.IsValid)
+            if (!commandResult.IsValid)
             {
-                return PartialView("_TodoItem", commandResult.Data);
+                return BadRequest(commandResult);
             }
-            ViewData["ForList"] = todo.ListId;
             return Json(commandResult);
         }
 
@@ -93,7 +92,8 @@ namespace TodoWeb.Controllers
                 Description = todo.Description,
                 Id = todo.Id,
                 Title = todo.Title,
-                TodoListId = todo.TodoList.Id
+                TodoListId = todo.TodoList.Id,
+                StatusId = todo.StatusId
             };
             return View(args);
         }
@@ -103,7 +103,7 @@ namespace TodoWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, UpdateTodoArgs args)
+        public async Task<IActionResult> Edit(UpdateTodoArgs args)
         {
             if (!ModelState.IsValid) 
             {
@@ -118,6 +118,20 @@ namespace TodoWeb.Controllers
                     commandResult,
                     args
                 );
+        }
+
+        // POST: Todos/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAjax(UpdateTodoArgs args)
+        {
+            if (!ModelState.IsValid) 
+            {
+                return Json(args);
+            }
+            return Json(args);
         }
         // GET: Todos/Delete/5
         public async Task<IActionResult> Delete(int? id, int? fromList)
