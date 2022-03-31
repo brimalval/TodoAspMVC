@@ -66,10 +66,14 @@ namespace TodoWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAjax(CreateTodoArgs todo)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(GetModelErrorMessages(ModelState));
+            }
             var commandResult = await _todoService.CreateAsync(todo);
             if (!commandResult.IsValid)
             {
-                return BadRequest(commandResult);
+                return BadRequest(commandResult.Errors);
             }
             return Json(commandResult);
         }
@@ -134,7 +138,7 @@ namespace TodoWeb.Controllers
             var commandResult = await _todoService.UpdateAsync(args);
             if (!commandResult.IsValid)
             {
-                return BadRequest(commandResult);
+                return BadRequest(commandResult.Errors);
             }
             return Json(commandResult);
         }

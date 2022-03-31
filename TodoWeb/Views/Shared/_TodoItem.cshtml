@@ -1,7 +1,7 @@
 ﻿@model TodoViewDto
 <article class="todo-container bg-slate-200">
 
-    <div class="icon-container @(Config.Colors[Model.Status?.Color ?? "none"]) mr-5 rounded-full"></div>
+    <div class="icon-container @(Config.Colors[Model.Status?.Color ?? "None"]) mr-5 rounded-full"></div>
 
     <form asp-action="EditAjax" asp-controller="Todos" 
     class="flex-grow flex items-center space-x-3 edit-todo-form">

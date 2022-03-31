@@ -2,14 +2,13 @@
     function todoListAjaxInit() {
         // TODO : Ajax functions for todo tasks
         function ajaxSubmit(form, successCallback, errorCallback) {
-            console.log(errorCallback);
             // Default form behaviors
             successCallback ??= (data) => {
                 toastr.success(data.message);
                 refreshTodos(form);
             }
             errorCallback ??= (data) => {
-                showErrors(data.responseJSON.errors ?? []);
+                showErrors(data.responseJSON);
             }
             var data = $(form).serialize();
             $.ajax({
@@ -48,7 +47,12 @@
             pageControl.submit();
         }
 
-        $(".list-parent").on("submit", ".todo-creation-form", function (e) {
+        $(".list-parent").on("submit", ".create-todo-form", function (e) {
+            ajaxSubmit(this);
+            return false;
+        });
+
+        $(".list-parent").on("submit", ".create-status-form", function (e) {
             ajaxSubmit(this);
             return false;
         });

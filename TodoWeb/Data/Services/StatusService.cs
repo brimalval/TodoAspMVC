@@ -42,6 +42,7 @@ namespace TodoWeb.Data.Services
             };
             await _context.Statuses.AddAsync(status);
             await _context.SaveChangesAsync();
+            _commandResult.Message = $"Successfully created status for list {todoList.Title}!";
             return _commandResult;
         }
         public async Task<bool> HasPermissionAsync(Status? status)
@@ -131,13 +132,18 @@ namespace TodoWeb.Data.Services
         public bool ValidateCreateArgs(CreateStatusArgs args)
         {
             string name = args.Name.Trim();
+            string color = args.Color.Trim();
             if (string.IsNullOrEmpty(name))
             {
                 _commandResult.AddError("Name", "Status name is required.");
             }
-            if (name.IsBelowMaxLength(maxNameLength))
+            if (!name.IsBelowMaxLength(maxNameLength))
             {
                 _commandResult.AddError("Name", "The given status name is too long.");
+            }
+            if (!Config.Config.Colors.ContainsKey(color))
+            {
+                _commandResult.AddError("Color", $"Given color {color} is invalid.");
             }
             return _commandResult.IsValid;
         }

@@ -49,7 +49,7 @@ namespace TodoWeb.Data.Services
                     };
                     await _dbContext.Todos.AddAsync(todo);
                     await _dbContext.SaveChangesAsync();
-                    _commandResult.Data = todo.GetViewDto();
+                    _commandResult.Message = "Task successfully created!";
                 }
             } catch
             {
@@ -73,6 +73,7 @@ namespace TodoWeb.Data.Services
             }
             _dbContext.Todos.Remove(todo);
             await _dbContext.SaveChangesAsync();
+            _commandResult.Message = "Task successfully deleted!";
             return _commandResult;
         }
 
@@ -159,6 +160,7 @@ namespace TodoWeb.Data.Services
                     todo.StatusId = args.StatusId;
                     _dbContext.Todos.Update(todo);
                     await _dbContext.SaveChangesAsync();
+                    _commandResult.Message = "Task successfully updated!";
                 }
             }
             catch
