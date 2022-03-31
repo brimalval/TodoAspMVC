@@ -269,5 +269,38 @@ namespace TodoWeb.Data.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize);
         }
+        public async Task<CommandResult> SetListStatus(int id, string? status)
+        {
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (todoList == null)
+            {
+                _commandResult.AddError("TodoLists", $"List with ID {id} not found.");
+                return _commandResult;
+            } 
+
+            if (!await HasPermissionAsync(todoList))
+            {
+                _commandResult.AddError("User", "User does not have permission to update this list.");
+                return _commandResult;
+            }
+            todoList.ListState = status;
+            _context.TodoLists.Update(todoList);
+            await _context.SaveChangesAsync();
+            return _commandResult;
+        }
+
+        public Task<CommandResult> PinList(int id)
+        {
+            return SetListStatus(id, "Pinned");
+        }
+        public Task<CommandResult> ArchiveList(int id)
+        {
+            return SetListStatus(id, "Archived");
+        }
+        public Task<CommandResult> UnsetListStatus(int id)
+        {
+            return SetListStatus(id, null);
+        }
     }
 }

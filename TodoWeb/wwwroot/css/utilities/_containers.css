@@ -17,3 +17,11 @@
 .todo-list-item {
   @apply border-slate-200 border-2 p-4 h-[500px] flex flex-col;
 }
+
+.todo-list-items {
+  @apply flex flex-col space-y-5 justify-center drop-shadow-lg rounded-md;
+}
+
+.dialog-lg {
+  @apply w-11/12 h-full my-5 overflow-auto flex flex-col justify-start items-center;
+}

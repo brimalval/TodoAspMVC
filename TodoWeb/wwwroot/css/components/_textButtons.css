@@ -1,12 +1,16 @@
-.btn {
+.text-btn {
   @apply text-white text-xl items-center font-semibold rounded-xl 
   		px-4 py-2 flex transition duration-300 cursor-pointer;
 }
 
 .btn-primary {
-  @apply bg-primary hover:bg-secondary btn;
+  @apply bg-primary hover:bg-secondary text-btn;
 }
 
 .btn-danger {
-  @apply bg-red-500 hover:bg-red-400 btn;
+  @apply bg-red-500 hover:bg-red-400 text-btn;
+}
+
+.btn-info {
+  @apply bg-yellow-500 hover:bg-yellow-400 text-btn;
 }

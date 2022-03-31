@@ -9,6 +9,7 @@ using TodoWeb.Dtos;
 namespace TodoWeb.Controllers
 {
     [Authorize]
+    // [Route("/Lists/{action=Index}/{id?}")]
     public class TodoListsController : ControllerWithErrors
     {
         private readonly ITodoListService _todoListService;
@@ -192,6 +193,24 @@ namespace TodoWeb.Controllers
                 return BadRequest($"List with ID {id} not found.");
             }
             return ViewComponent("Todos", new { list, pageNumber, pageSize });
+        }
+        [HttpPost]
+        public async Task<IActionResult> UnsetListStatus(int id)
+        {
+            await _todoListService.UnsetListStatus(id);
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> PinList(int id)
+        {
+            await _todoListService.PinList(id);
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> ArchiveList(int id)
+        {
+            await _todoListService.ArchiveList(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

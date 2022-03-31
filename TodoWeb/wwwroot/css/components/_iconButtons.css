@@ -1,11 +1,27 @@
 .todo-item-btn {
-  @apply rounded-full transition h-fit hover:text-white duration-300 p-1 m-3;
+  @apply h-fit duration-300 p-1 m-3;
+}
+
+.icon-btn {
+  @apply duration-300 transition hover:text-white rounded-full;
+}
+
+.danger-btn {
+  @apply hover:bg-red-500 icon-btn;
+}
+
+.warning-btn {
+  @apply hover:bg-orange-500 icon-btn;
+}
+
+.success-btn {
+  @apply hover:bg-green-500 icon-btn;
 }
 
 .delete-todo-btn {
-  @apply hover:bg-red-500 todo-item-btn;
+  @apply todo-item-btn danger-btn;
 }
 
 .edit-todo-btn {
-  @apply  hover:bg-orange-500 todo-item-btn;
+  @apply todo-item-btn warning-btn;
 }
