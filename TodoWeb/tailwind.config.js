@@ -3,6 +3,7 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 module.exports = {
   content: [
       "./Views/**/*.cshtml",
+      "./Config/**/*.cs",
   ],
   theme: {
     screens: {
