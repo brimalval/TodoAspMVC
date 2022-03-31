@@ -175,9 +175,9 @@ namespace TodoWeb.Controllers
         {
             var commandResult = await _todoService.DeleteAsync(id);
             if (!commandResult.IsValid) {
-                return Json(commandResult, StatusCode(StatusCodes.Status500InternalServerError));
+                return BadRequest(commandResult);
             }
-            return Ok();
+            return Json(commandResult);
         }
 
         // TODO: Update Status
