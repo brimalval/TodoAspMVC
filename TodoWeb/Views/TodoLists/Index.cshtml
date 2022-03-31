@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TodoListViewDto>
+﻿@model ListIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -18,44 +18,43 @@
     </a>
 </section>
 
-<section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Your todo lists section">
-    <div class="flex justify-center overflow-auto w-full">
-        @if (Model.Any())
-        {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Title)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Description)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model) {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="ManagePermissions" asp-route-id="@item.Id">Manage Permissions</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">View Tasks</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-            </table>
-        } else
-        {
-            <h2>No lists created yet</h2>
+<section class="flex flex-col space-y-5 justify-center drop-shadow-lg rounded-md" aria-name="Your todo lists section">
+    @if (Model.PinnedLists.Any())
+    {
+        @foreach (var item in Model.PinnedLists) {
+        <article class="todo-list-item">
+            <div class="todo-list-item-header">
+                <form>
+                    <ul class="flex space-x-3 w-full justify-end">
+                        <li><a asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
+                        <li><a asp-action="ManagePermissions" asp-route-id="@item.Id">Manage Permissions</a></li>
+                        <li><a asp-action="Details" asp-route-id="@item.Id">View Tasks</a></li>
+                        <li><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
+                    </ul>
+                    <input asp-for="@item.Id" type="hidden" />
+                    <small>@Html.DisplayNameFor(m => item.Title)</small>
+                    <input asp-for="@item.Title" />
+                </form>
+            </div>
+            <hr />
+            <div class="todo-list-item-body overflow-auto">
+                <partial name="_ListWithInput" model="item" />
+            </div>
+        </article>
         }
-    </div>
+    } else
+    {
+        <h2>No lists created yet</h2>
+    }
 </section>
+
+@section Scripts 
+{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/app/todosAjaxInit.js"></script>
+    <script>
+        $(document).ready(function () {
+            todosAjaxInit();
+        });
+    </script>
+}

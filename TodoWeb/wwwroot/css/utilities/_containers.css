@@ -7,9 +7,13 @@
 }
 
 .todo-container {
-  @apply relative w-full rounded-md flex p-3 items-center min-h-[6rem] shadow-md;
+  @apply relative w-full rounded-md flex p-3 items-center min-h-[5rem] h-[5rem] shadow-md;
 }
 
 .form-group, dt {
   @apply my-6;
+}
+
+.todo-list-item {
+  @apply border-slate-200 border-2 p-4 h-[500px] flex flex-col;
 }

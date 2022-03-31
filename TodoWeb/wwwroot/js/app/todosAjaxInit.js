@@ -1,5 +1,5 @@
 ﻿(function (window) {
-    function todoListAjaxInit() {
+    function todosAjaxInit() {
         // TODO : Ajax functions for todo tasks
         function ajaxSubmit(form, successCallback, errorCallback) {
             // Default form behaviors
@@ -95,10 +95,20 @@
             const form = this;
             const id = form.dataset.id;
             const success = (data) => {
-                $('#todos-'+id).html(data);
+                const noMoreData = data.trim() == "";
+                if (noMoreData) {
+                    const pageNumber = findPageNumber(this)[0];
+                    pageNumber.value = pageNumber.oldValue;
+                } else {
+                    $('#todos-'+id).html(data);
+                }
             };
             ajaxSubmit(form, success);
             return false;
+        });
+
+        $(".list-parent").on('focus', '.page-number', function(e) {
+            this.oldValue = this.value;
         });
 
         $(".list-parent").on('change', '.page-number', function(e) {
@@ -110,8 +120,9 @@
 
         $(".list-parent").on('click', '.page-next', function (e) {
             const pageControl = findPageControl(this);
-            const pageNumber = pageControl.find('.page-number');
-            pageNumber[0].stepUp();
+            const pageNumber = pageControl.find('.page-number')[0];
+            pageNumber.oldValue = pageNumber.value;
+            pageNumber.stepUp();
         });
 
         $(".list-parent").on('click', '.page-prev', function(e) {
@@ -136,7 +147,7 @@
             const icon = $(this).parent().find('.collapse-icon');
             icon.toggleClass('-rotate-90');
         });
-        delete window.todoListAjaxInit;
+        delete window.todosAjaxInit;
     }
-    window.todoListAjaxInit = todoListAjaxInit;
+    window.todosAjaxInit = todosAjaxInit;
 })(window)

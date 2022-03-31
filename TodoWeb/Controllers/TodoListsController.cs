@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoWeb.Data.Services;
+using TodoWeb.ViewModels;
 using TodoWeb.Dtos;
 
 namespace TodoWeb.Controllers
@@ -20,7 +21,9 @@ namespace TodoWeb.Controllers
         // GET: TodoLists
         public async Task<IActionResult> Index()
         {
-            return View(await _todoListService.GetAllAsync());
+            var lists = await _todoListService.GetAllAsync();
+            ListIndexViewModel viewModel = new ListIndexViewModel(lists);
+            return View(viewModel);
         }
 
         // GET: TodoLists/Details/5

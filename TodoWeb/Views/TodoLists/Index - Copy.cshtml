@@ -1,0 +1,61 @@
+﻿@model IEnumerable<TodoListViewDto>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Your Lists</h1>
+
+<section class="m-4 flex justify-center" aria-label="Create todo list button section">
+    <a class="btn-primary" asp-action="Create">
+        @* Plus icon svg *@
+        <div class="icon-container mr-3">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+        </div>
+        Create a List
+    </a>
+</section>
+
+<section class="flex justify-center drop-shadow-lg rounded-md" aria-name="Your todo lists section">
+    <div class="flex justify-center overflow-auto w-full">
+        @if (Model.Any())
+        {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Description)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="ManagePermissions" asp-route-id="@item.Id">Manage Permissions</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">View Tasks</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+            </table>
+        } else
+        {
+            <h2>No lists created yet</h2>
+        }
+    </div>
+</section>
