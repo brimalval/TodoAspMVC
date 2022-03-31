@@ -20,22 +20,22 @@
             toastr.error(message);
         }
 
-        function findListParent(e) {
-            return $(e).parents('.list-parent');
+        function findListParent(el) {
+            return $(el).parents('.list-parent');
         }
 
-        function findPageControl(e) {
-            const listParent = findListParent(e);
+        function findPageControl(el) {
+            const listParent = findListParent(el);
             return listParent.find('.page-control');
         }
 
-        function findPageNumber(e) {
-            const pageControl = findPageControl(e);
+        function findPageNumber(el) {
+            const pageControl = findPageControl(el);
             return pageControl.find('.page-number');
         }
 
-        function refreshTodos(e) {
-            const pageControl = findPageControl(e);
+        function refreshTodos(el) {
+            const pageControl = findPageControl(el);
             pageControl.submit();
         }
 
@@ -71,13 +71,31 @@
             const form = this;
             const success = (data) => {
                 console.log(data);
+                refreshTodos(this);
             };
-            ajaxSubmit(form, "POST", success);
+            const error = (data) => {
+                showErrors(data.responseJSON.errors);
+                const form = this;
+                // Resetting input fields
+                $(form).find('input, textarea').each(function (e) {
+                    const inputField = this;
+                    inputField.value = inputField.defaultValue;
+                });
+            };
+            ajaxSubmit(form, "POST", success, error);
             return false;
         });
 
-        $(document).on('change', '.edit-todo-form input, .edit-todo-form select', function (e) {
-            console.log(this);
+        $(document).on('change', '.edit-todo-form input, .edit-todo-form textarea', function (e) {
+            if (this.defaultValue != this.value.trim()) {
+                $(this).parents('form').submit();
+            }
+        });
+
+        $(document).on('change', '.edit-todo-form select', function (e) {
+            if (!this.options[this.selectedIndex].defaultSelected) {
+                $(this).parents('form').submit();
+            }
         });
 
         $(document).on('submit', '.page-control', function (e) {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoWeb.Data;
 using TodoWeb.Dtos;
 
@@ -31,6 +32,18 @@ namespace TodoWeb.Controllers
             {
                 ModelState.AddModelError(error.Key, error.Value);
             }
+        }
+        public ICollection<string> GetModelErrorMessages(ModelStateDictionary modelState)
+        {
+            var errors = new List<string>();
+            foreach (ModelStateEntry state in modelState.Values)
+            {
+                foreach (ModelError error in state.Errors)
+                {
+                    errors.Add(error.ErrorMessage);
+                }
+            }
+            return errors;
         }
     }
 }

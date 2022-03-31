@@ -154,9 +154,9 @@ namespace TodoWeb.Data.Services
                 };
                 if (ValidateCreateArgs(createArgs))
                 {
-                    todo.Description = (args.Description ?? "").Trim();
-                    todo.Title = args.Title.Trim();
-                    todo.StatusId = args.Status?.Id;
+                    todo.Description = args.Description;
+                    todo.Title = args.Title;
+                    todo.StatusId = args.StatusId;
                     _dbContext.Todos.Update(todo);
                     await _dbContext.SaveChangesAsync();
                 }

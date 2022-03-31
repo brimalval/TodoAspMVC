@@ -13,7 +13,7 @@ public class TodoViewDto : IDto
     public DateTime CreatedDateTime { get; set; }
     public int CreatedById { get; set; }
     public int TodoListId { get; set; }
-    public int StatusId { get; set; }
+    public int? StatusId { get; set; }
     [JsonIgnore]
     public virtual TodoListViewDto TodoList { get; set; }
     [JsonIgnore]

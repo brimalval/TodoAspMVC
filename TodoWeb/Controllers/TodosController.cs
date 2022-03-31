@@ -129,9 +129,14 @@ namespace TodoWeb.Controllers
         {
             if (!ModelState.IsValid) 
             {
-                return Json(args);
+                return BadRequest(GetModelErrorMessages(ModelState));
             }
-            return Json(args);
+            var commandResult = await _todoService.UpdateAsync(args);
+            if (!commandResult.IsValid)
+            {
+                return BadRequest(commandResult);
+            }
+            return Json(commandResult);
         }
         // GET: Todos/Delete/5
         public async Task<IActionResult> Delete(int? id, int? fromList)
