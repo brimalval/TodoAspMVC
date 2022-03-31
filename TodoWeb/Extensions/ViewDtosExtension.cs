@@ -22,7 +22,8 @@ namespace TodoWeb.Extensions
             Title = todoList.Title,
             Description = todoList.Description,
             Authors = todoList.Authors.Select(author => author.GetViewDto()),
-            Statuses = todoList.Statuses.Select(status => status.GetViewDto())
+            Statuses = todoList.Statuses.Select(status => status.GetViewDto()),
+            ListState = todoList.ListState
         };
         public static UserViewDto GetViewDto(this User user) => new()
         {
